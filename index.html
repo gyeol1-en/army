@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>출타 체계 종합 정보 시스템</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary: #1e293b;
+            --primary-light: #334155;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Malgun Gothic", sans-serif;
+            margin: 0; padding: 20px 16px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+        .container { max-width: 480px; margin: 0 auto; position: relative; }
+        
+        /* 헤더 영역 */
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        h2 { 
+            font-size: 1.5rem; 
+            color: var(--primary); 
+            margin: 0; 
+            font-weight: 800; 
+            white-space: nowrap; 
+            flex-shrink: 0; 
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-login-toggle {
+            background: #e2e8f0; color: #475569; padding: 8px 14px; 
+            border-radius: 30px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer;
+            white-space: nowrap; transition: all 0.2s ease;
+        }
+        .btn-login-toggle:hover { background: #cbd5e1; }
+        .btn-login-toggle.logged-in { background: var(--danger); color: white; }
+        .btn-login-toggle.logged-in:hover { background: #dc2626; }
+
+        /* 관리자 제어 패널 */
+        .admin-control-panel {
+            display: none;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+        .btn-toggle-switch {
+            background: var(--success); color: white; padding: 8px 16px;
+            border-radius: 30px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); transition: all 0.2s;
+        }
+        .btn-toggle-switch.off-state { 
+            background: #64748b; 
+            box-shadow: 0 4px 6px -1px rgba(100, 116, 139, 0.2);
+        }
+
+        /* 신청 마감 안내 문구 카드 */
+        .closed-notice-card {
+            display: none; background: white; padding: 50px 20px; border-radius: 16px;
+            text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            font-size: 1.1rem; font-weight: 700; color: #475569; border-top: 4px solid var(--danger);
+            margin-top: 20px; animation: fadeIn 0.3s ease;
+        }
+
+        /* 로그인 모달 */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center;
+            padding: 20px; backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: white; padding: 28px; border-radius: 20px; width: 100%; max-width: 350px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative;
+            animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; text-align: center; color: var(--primary); }
+        .modal-close { position: absolute; top: 16px; right: 20px; font-size: 1.4rem; cursor: pointer; color: #94a3b8; transition: color 0.2s; }
+        .modal-close:hover { color: var(--text-main); }
+
+        /* 현황판 영역 구조 정렬 */
+        .status-board-area { margin-bottom: 24px; }
+        .board-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; }
+        .board-main-title { font-size: 0.95rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* 부대 총원 설정창 디자인 */
+        .mini-total-box { display: none; align-items: center; gap: 6px; background: #e2e8f0; padding: 4px 10px; border-radius: 8px; animation: fadeIn 0.2s ease; }
+        .mini-total-box label { font-size: 0.75rem; color: #475569; font-weight: 700; white-space: nowrap; }
+        .mini-total-box input { width: 50px; padding: 4px 6px; font-size: 0.8rem; text-align: center; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; margin: 0; font-weight: bold; }
+
+        /* 대시보드 그리드 고도화 */
+        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+        .card {
+            background: var(--card-bg); padding: 18px 14px; border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01); 
+            text-align: center; border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative; overflow: hidden;
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: transparent;
+        }
+        .card.total-card::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .card.away-card::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+        
+        .card .title { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 6px; }
+        .card .value { font-size: 1.5rem; font-weight: 800; }
+        
+        .full-card { 
+            grid-column: span 2; padding: 14px 20px;
+            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+        }
+
+        /* 관리자 전용 대형 버튼 배너 */
+        .admin-toggle-banner {
+            width: 100%; background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px;
+            padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; font-size: 0.9rem; font-weight: 700; text-align: left;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); margin-bottom: 12px; transition: all 0.2s ease;
+        }
+        .admin-toggle-banner:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .admin-toggle-banner .arrow-icon { font-size: 0.75rem; color: #94a3b8; margin-left: 6px; transition: transform 0.2s; }
+        .banner-right-controls { display: flex; align-items: center; gap: 12px; }
+
+        .btn-reset-list {
+            background: #fef2f2; color: var(--danger); font-size: 0.75rem; font-weight: 700;
+            padding: 6px 12px; border-radius: 8px; border: 1px solid #fee2e2; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-reset-list:hover { background: #fee2e2; }
+
+        /* 관리자 컴포넌트 구조 */
+        .admin-list-only { display: none; }
+        .collapsible-content { display: none; margin-top: 10px; animation: fadeIn 0.2s ease; }
+
+        /* 입력 폼 섹션 고정 정렬 및 세련된 테두리 */
+        .form-section { 
+            background: var(--card-bg); padding: 22px; border-radius: 20px; margin-bottom: 20px; 
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
+            border: 1px solid var(--border-color);
+        }
+        .form-main-title { font-size: 1rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; margin-top: 0; }
+        
+        .input-group { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+        .date-group { display: flex; align-items: center; gap: 6px; width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 4px 12px; transition: border 0.2s; }
+        .date-group:focus-within { border-color: #cbd5e1; background: #fff; }
+        .date-group span { color: #94a3b8; font-size: 0.85rem; font-weight: bold; }
+        
+        input, select {
+            width: 100%; padding: 13px 14px; border: 1px solid var(--border-color);
+            border-radius: 12px; font-size: 14px; background: var(--input-bg); outline: none;
+            color: var(--text-main); font-weight: 500; transition: all 0.2s ease;
+        }
+        input::placeholder { color: #94a3b8; }
+        input:focus, select:focus { border-color: #cbd5e1; background: #fff; box-shadow: 0 0 0 3px rgba(226, 232, 240, 0.4); }
+        input[type="date"] { padding: 10px 4px; border: none; background: transparent; font-size: 14px; color: var(--text-main); width: 100%; font-weight: 600; }
+        
+        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .btn-add { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.15); }
+        .btn-add:hover { background: var(--primary-light); transform: translateY(-1px); }
+        .btn-add:active { transform: translateY(0); }
+        
+        /* 종교 버튼 전용 스타일 마감 */
+        .btn-church { background: #475569; color: white; margin-top: 4px; box-shadow: 0 4px 12px rgba(71, 85, 105, 0.15); }
+        .btn-church:hover { background: #334155; transform: translateY(-1px); }
+        .btn-church:active { transform: translateY(0); }
+
+        /* 다중 날짜 선택 배지 디자인 */
+        .selected-dates-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; padding: 2px; }
+        .date-badge {
+            background: #f1f5f9; color: #334155; font-size: 0.75rem; font-weight: 700;
+            padding: 6px 12px; border-radius: 30px; display: inline-flex; align-items: center; gap: 6px;
+            cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.2s ease;
+            animation: fadeIn 0.2s ease;
+        }
+        .date-badge:hover { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
+        .date-badge::after { content: "×"; font-size: 0.9rem; color: #94a3b8; margin-left: 2px; }
+        .date-badge:hover::after { color: var(--danger); }
+
+        /* 명부 및 출타 배지 스타일 */
+        .member-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; margin-bottom: 12px; }
+        .member-item {
+            background: var(--card-bg); padding: 14px 16px; border-radius: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; justify-content: space-between; align-items: center;
+            gap: 12px; border: 1px solid var(--border-color);
+        }
+        .member-info { flex: 1; min-width: 0; }
+        .member-info .name-heading { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+        .member-info .name-tag { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+        .member-info .rank { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+        
+        .badge-container { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 2px; }
+        .status-row-badge {
+            display: inline-flex; align-items: center; background: #fafafa; 
+            border-left: 3px solid var(--accent); padding: 5px 10px; border-radius: 0 8px 8px 0;
+            font-size: 0.8rem; font-weight: 600; color: #334155; width: fit-content; max-width: 100%;
+            border-top: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;
+        }
+        .status-row-badge .badge-label { font-weight: 800; color: var(--accent); margin-right: 8px; white-space: nowrap; }
+        .status-row-badge .badge-period { color: #64748b; font-size: 0.75rem; font-weight: 500; }
+
+        .member-status { display: flex; align-items: center; gap: 10px; flex-shrink: 0; justify-content: flex-end; }
+        .btn-del { 
+            background: none; border: none; color: #cbd5e1; font-size: 1.4rem; cursor: pointer; 
+            padding: 4px 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            line-height: 1; transition: color 0.2s;
+        }
+        .btn-del:hover { color: var(--danger); }
+        .divider { border-top: 1px solid var(--border-color); margin: 16px 0; display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 헤더 -->
+    <div class="header-area">
+        <h2>📋 출타종합체계</h2>
+        <button id="login-toggle-btn" class="btn-login-toggle" onclick="toggleLogin()">관리자 로그인</button>
+    </div>
+
+    <!-- ⚙️ 관리자용 출타신청 ON/OFF 토글 스위치 -->
+    <div class="admin-control-panel" id="admin-switch-panel">
+        <button id="system-status-btn" class="btn-toggle-switch" onclick="toggleSystemActive()">🟢 출타신청 기능: ON</button>
+    </div>
+
+    <!-- 📢 신청 기능 OFF 일때 대원들에게 보여지는 차단 안내 메세지 -->
+    <div id="notice-closed-box" class="closed-notice-card">
+        🔒 현재 출타종합 입력 기간이 아닙니다.
+    </div>
+
+    <!-- 제어 컴포넌트 묶음 -->
+    <div id="system-main-contents">
+        
+        <!-- 1. 현황판 대시보드 -->
+        <div class="status-board-area" id="section-board">
+            <div class="board-header-wrapper">
+                <div class="board-main-title" id="board-main-title">📊 중대 출타 현황판</div>
+                
+                <!-- ⚙️ 총원 설정창 -->
+                <div class="mini-total-box" id="top-total-setting-box" onclick="event.stopPropagation();">
+                    <label>⚙️ 총원:</label>
+                    <input type="number" id="in-total-setup" placeholder="총원" onchange="updateTotalCount()">
+                </div>
+            </div>
+
+            <div class="dashboard">
+                <div class="card total-card">
+                    <div class="title">부대 총원</div>
+                    <div class="value" id="count-total" style="color: var(--primary);">0명</div>
+                </div>
+                <div class="card away-card">
+                    <div class="title">출타신청자</div>
+                    <div class="value" id="count-away" style="color: var(--danger);">0명</div>
+                </div>
+                <div class="card full-card">
+                    <div style="text-align: center; width: 100%; display: flex; justify-content: center; gap: 40px; align-items: center;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">정기 / 기타 :</span>
+                            <span id="dt-vacation" style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-left: 4px;">0</span>
+                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;"> 명</span>
+                        </div>
+                        <div style="border-left: 1px solid var(--border-color); height: 16px;"></div>
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">외박 / 외출 :</span>
+                            <span id="dt-stayout" style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-left: 4px;">0</span>
+                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;"> 명</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔒 관리자 로그인 시에만 노출되는 대형 토글 메뉴 배너 영역 -->
+            <div class="admin-list-only" id="admin-secret-list-area">
+                
+                <!-- [토글 버튼 1] 중대 출타 현황 배너 -->
+                <div class="admin-toggle-banner" onclick="toggleCollapseSection('away-collapse-box', event)">
+                    <span style="color: var(--primary);">📊 중대 출타 신청 현황 명부 <span class="arrow-icon" id="arrow-away">▼</span></span>
+                    <div class="banner-right-controls">
+                        <button class="btn-reset-list" onclick="event.stopPropagation(); resetMilData();">출타 초기화</button>
+                    </div>
+                </div>
+                <div class="collapsible-content" id="away-collapse-box">
+                    <div class="member-list" id="member-list-box"></div>
+                </div>
+                
+                <div class="divider" id="admin-section-divider"></div>
+                
+                <!-- [토글 버튼 2] 종교 참석 신청 명부 배너 -->
+                <div class="admin-toggle-banner" onclick="toggleCollapseSection('church-collapse-box', event)">
+                    <span style="color: var(--primary);">⛪ 일요일 종교 참석 신청 명부 <span class="arrow-icon" id="arrow-church">▼</span></span>
+                    <div class="banner-right-controls">
+                        <button class="btn-reset-list" style="background:#f1f5f9; color:#475569; border-color:#cbd5e1;" onclick="event.stopPropagation(); resetChurchData();">종교 초기화</button>
+                    </div>
+                </div>
+                <div class="collapsible-content" id="church-collapse-box">
+                    <div class="member-list" id="church-list-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 출타 신청 등록 폼 -->
+        <div class="form-section" id="section-form-away">
+            <div class="form-main-title" id="form-title">✍️ 대원 출타신청 등록</div>
+            <div class="input-group">
+                <input type="text" id="in-rank" placeholder="계급 (예: 상병)">
+                <input type="text" id="in-name" placeholder="이름">
+            </div>
+            <div class="input-group">
+                <select id="in-status" onchange="handleStatusChange()">
+                    <option value="정기휴가">정기휴가</option>
+                    <option value="포상/위로">포상/위로</option>
+                    <option value="정기외박">정기외박</option>
+                    <option value="평일외출">평일외출</option>
+                    <option value="정기외출">정기외출(주말)</option>
+                    <option value="기타">기타 (직접입력)</option>
+                </select>
+                
+                <!-- 기간 선택기 (휴가, 기타, 정기외박 공용) -->
+                <div class="date-group" id="date-picker-wrapper">
+                    <input type="date" id="in-start-date">
+                    <span>~</span>
+                    <input type="date" id="in-end-date">
+                </div>
+
+                <!-- 외출 전용 단일 날짜 선택기 -->
+                <div class="date-group" id="out-single-picker-wrapper" style="display: none;">
+                    <input type="date" id="in-out-single-date" oninput="handleOutDateSelect(this)">
+                </div>
+            </div>
+
+            <!-- 날짜 배지 표시 공간 (외출 전용) -->
+            <div class="selected-dates-container" id="out-badge-box"></div>
+
+            <div class="input-group" id="etc-reason-wrapper" style="display: none;">
+                <input type="text" id="in-etc-reason" placeholder="기타 출타 사유를 입력하세요">
+            </div>
+            <button class="btn-add" onclick="addData()">출타신청 등록</button>
+        </div>
+
+        <!-- 3. 일요일 종교신청 등록 폼 (보라색 포인트 완벽 제거 및 고급화) -->
+        <div class="form-section" id="section-form-church">
+            <div class="form-main-title">⛪ 일요일 종교참석 등록</div>
+            <div class="input-group">
+                <input type="text" id="church-rank" placeholder="계급 (예: 일병)">
+                <input type="text" id="church-name" placeholder="이름">
+            </div>
+            <div class="input-group">
+                <select id="church-select" style="width: 40%;">
+                    <option value="참석">종교참석</option>
+                </select>
+                <div class="date-group" style="width: 60%;">
+                    <input type="date" id="church-date" oninput="handleChurchDateSelect(this)">
+                </div>
+            </div>
+            
+            <div class="selected-dates-container" id="church-badge-box"></div>
+            <button class="btn-church" onclick="addChurchData()">종교신청 제출</button>
+        </div>
+
+    </div> <!-- system-main-contents 종료 -->
+</div>
+
+<!-- 관리자 로그인 인증 모달 -->
+<div class="modal" id="login-modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()">×</span>
+        <div class="modal-title">🔐 체계 관리자 인증</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <input type="text" id="login-id" placeholder="관리자 ID">
+            <input type="password" id="login-pw" placeholder="비밀번호">
+            <button class="btn-add" style="margin-top:4px;" onclick="checkLogin()">인증 및 로그인</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let mData = JSON.parse(localStorage.getItem("mil_web_data")) || [];
+    let cData = JSON.parse(localStorage.getItem("mil_church_data")) || [];
+    let baseTotal = parseInt(localStorage.getItem("mil_total_setup")) || 0; 
+    let isAdmin = false; 
+
+    let isSystemActive = localStorage.getItem("mil_system_active") !== "false";
+
+    let selectedChurchDates = [];
+    let selectedOutDates = []; 
+
+    function setDefaultDates() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; 
+        let dd = today.getDate();
+
+        if (mm < 10) mm = '0' + mm;
+        if (dd < 10) dd = '0' + dd;
+
+        const formattedToday = `${yyyy}-${mm}-${dd}`;
+        document.getElementById("in-start-date").value = formattedToday;
+        document.getElementById("in-end-date").value = formattedToday;
+        document.getElementById("church-date").value = formattedToday;
+        document.getElementById("in-out-single-date").value = formattedToday;
+    }
+
+    function handleOutDateSelect(inputElem) {
+        const dateVal = inputElem.value;
+        if(!dateVal) return;
+
+        const targetDate = new Date(dateVal);
+        const day = targetDate.getDay(); 
+        const currentStatus = document.getElementById("in-status").value;
+
+        if (currentStatus === "평일외출") {
+            if (day === 0 || day === 6) {
+                alert("⚠️ [외출 신청 제한] 평일(월~금)만 선택하실 수 있습니다!");
+                inputElem.value = "";
+                return;
+            }
+        } else if (currentStatus === "정기외출") {
+            if (day !== 0 && day !== 6) {
+                alert("⚠️ [신청 제한] 주말(토, 일)만 선택하실 수 있습니다!");
+                inputElem.value = "";
+                return;
+            }
+        }
+
+        const parts = dateVal.split("-");
+        const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+        const displayStr = `${parts[1]}.${parts[2]}(${dayNames[day]})`;
+
+        if(selectedOutDates.includes(displayStr)) {
+            inputElem.value = "";
+            return;
+        }
+
+        selectedOutDates.push(displayStr);
+        renderOutDateBadges();
+        inputElem.value = ""; 
+    }
+
+    function renderOutDateBadges() {
+        const box = document.getElementById("out-badge-box");
+        box.innerHTML = "";
+        selectedOutDates.forEach((dateText, index) => {
+            box.innerHTML += `
+                <div class="date-badge" onclick="removeOutDateTag(${index})">
+                    ${dateText}
+                </div>
+            `;
+        });
+    }
+
+    function removeOutDateTag(index) {
+        selectedOutDates.splice(index, 1);
+        renderOutDateBadges();
+    }
+
+    function handleChurchDateSelect(inputElem) {
+        const dateVal = inputElem.value;
+        if(!dateVal) return;
+
+        const targetDate = new Date(dateVal);
+        const day = targetDate.getDay(); 
+
+        if(day !== 0) {
+            alert("⚠️ [종교신청 제한] 일요일만 선택하실 수 있습니다!");
+            inputElem.value = "";
+            return;
+        }
+
+        const parts = dateVal.split("-");
+        const displayStr = `${parts[1]}.${parts[2]}(일)`;
+
+        if(selectedChurchDates.includes(displayStr)) {
+            inputElem.value = "";
+            return;
+        }
+
+        selectedChurchDates.push(displayStr);
+        renderDateBadges();
+        inputElem.value = ""; 
+    }
+
+    function renderDateBadges() {
+        const box = document.getElementById("church-badge-box");
+        box.innerHTML = "";
+        selectedChurchDates.forEach((dateText, index) => {
+            box.innerHTML += `
+                <div class="date-badge" onclick="removeChurchDateTag(${index})">
+                    ${dateText}
+                </div>
+            `;
+        });
+    }
+
+    function removeChurchDateTag(index) {
+        selectedChurchDates.splice(index, 1);
+        renderDateBadges();
+    }
+
+    function handleStatusChange() {
+        const status = document.getElementById("in-status").value;
+        const rangeWrapper = document.getElementById("date-picker-wrapper");
+        const singleWrapper = document.getElementById("out-single-picker-wrapper");
+        const outBadgeBox = document.getElementById("out-badge-box");
+        const etcWrapper = document.getElementById("etc-reason-wrapper");
+        
+        selectedOutDates = [];
+        renderOutDateBadges();
+
+        if (status === "평일외출" || status === "정기외출") {
+            rangeWrapper.style.display = "none";
+            singleWrapper.style.display = "flex";
+            outBadgeBox.style.display = "flex";
+        } else {
+            rangeWrapper.style.display = "flex";
+            singleWrapper.style.display = "none";
+            outBadgeBox.style.display = "none";
+        }
+
+        if(status === "기타") { etcWrapper.style.display = "block"; } 
+        else { etcWrapper.style.display = "none"; }
+    }
+
+    function toggleCollapseSection(targetId, event) {
+        const contentBox = document.getElementById(targetId);
+        const arrowId = targetId === "away-collapse-box" ? "arrow-away" : "arrow-church";
+        const arrowSpan = document.getElementById(arrowId);
+        
+        if (contentBox.style.display === "block") {
+            contentBox.style.display = "none";
+            arrowSpan.innerText = "▼";
+        } else {
+            contentBox.style.display = "block";
+            arrowSpan.innerText = "▲";
+        }
+    }
+
+    function getSortableDate(periodStr) {
+        try {
+            const matches = periodStr.match(/(\d{2})\.(\d{2})/g);
+            if (!matches || matches.length === 0) return 99999999;
+            const parts = matches[0].split(".");
+            return parseInt(parts[0] + parts[1]);
+        } catch(e) {
+            return 99999999;
+        }
+    }
+
+    function init() {
+        const mainContents = document.getElementById("system-main-contents");
+        const noticeBox = document.getElementById("notice-closed-box");
+
+        if (isAdmin) {
+            mainContents.style.display = "block";
+            noticeBox.style.display = "none";
+        } else {
+            if (isSystemActive) {
+                mainContents.style.display = "block";
+                noticeBox.style.display = "none";
+            } else {
+                mainContents.style.display = "none";
+                noticeBox.style.display = "block";
+            }
+        }
+
+        const switchBtn = document.getElementById("system-status-btn");
+        if (isSystemActive) {
+            switchBtn.innerText = "🟢 출타신청 기능: ON";
+            switchBtn.classList.remove("off-state");
+        } else {
+            switchBtn.innerText = "🔴 출타신청 기능: OFF";
+            switchBtn.classList.add("off-state");
+        }
+
+        let vac = 0, stay = 0;
+        mData.forEach(m => {
+            if(m.status.includes("휴가") || m.status.includes("위로") || m.status.includes("기타")) vac++;
+            else stay++;
+        });
+
+        const box = document.getElementById("member-list-box");
+        box.innerHTML = "";
+
+        let groupedAway = {};
+        mData.forEach((item, originalIndex) => {
+            const key = item.rank + "_" + item.name;
+            if (!groupedAway[key]) {
+                groupedAway[key] = {
+                    rank: item.rank,
+                    name: item.name,
+                    subItems: [], 
+                    indices: []
+                };
+            }
+            groupedAway[key].subItems.push({ status: item.status, period: item.period });
+            groupedAway[key].indices.push(originalIndex);
+        });
+
+        let awayGroupList = Object.values(groupedAway);
+        let totalAwayCount = awayGroupList.length; 
+
+        awayGroupList.forEach(group => {
+            let minKey = 99999999;
+            group.subItems.forEach(si => {
+                let currentKey = getSortableDate(si.period);
+                if(currentKey < minKey) { minKey = currentKey; }
+            });
+            group.sortKey = minKey;
+        });
+        
+        awayGroupList.sort((a, b) => a.sortKey - b.sortKey);
+
+        if (awayGroupList.length === 0) {
+            box.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">현재 신청된 대원이 없습니다.</div>`;
+        } else {
+            awayGroupList.forEach(group => {
+                let subBadgesHtml = "";
+                group.subItems.forEach(si => {
+                    subBadgesHtml += `
+                        <div class="status-row-badge">
+                            <span class="badge-label">${si.status}</span>
+                            <span class="badge-period">${si.period}</span>
+                        </div>
+                    `;
+                });
+
+                box.innerHTML += `
+                    <div class="member-item">
+                        <div class="member-info">
+                            <div class="name-heading">
+                                <span class="name-tag">${group.name}</span>
+                                <span class="rank">${group.rank}</span>
+                            </div>
+                            <div class="badge-container">${subBadgesHtml}</div>
+                        </div>
+                        <div class="member-status">
+                            <button class="btn-del" onclick="delGroupedAwayData('[${group.indices.join(',')}]')">×</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        const cBox = document.getElementById("church-list-box");
+        cBox.innerHTML = "";
+        
+        let groupedChurch = {};
+        cData.forEach((item, originalIndex) => {
+            const key = item.rank + "_" + item.name;
+            if(!groupedChurch[key]) {
+                groupedChurch[key] = {
+                    rank: item.rank,
+                    name: item.name,
+                    dates: [],
+                    indices: [] 
+                };
+            }
+            if(!groupedChurch[key].dates.includes(item.date)) {
+                groupedChurch[key].dates.push(item.date);
+            }
+            groupedChurch[key].indices.push(originalIndex);
+        });
+
+        let churchGroupList = Object.values(groupedChurch);
+
+        churchGroupList.forEach(group => {
+            group.dates.sort((a, b) => getSortableDate(a) - getSortableDate(b));
+            group.combinedDatesText = group.dates.join(", ");
+            group.sortKey = getSortableDate(group.combinedDatesText);
+        });
+        churchGroupList.sort((a, b) => a.sortKey - b.sortKey);
+
+        if (churchGroupList.length === 0) {
+            cBox.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">현재 신청된 대원이 없습니다.</div>`;
+        } else {
+            churchGroupList.forEach(group => {
+                cBox.innerHTML += `
+                    <div class="member-item">
+                        <div class="member-info">
+                            <div class="name-heading">
+                                <span class="name-tag">${group.name}</span>
+                                <span class="rank">${group.rank}</span>
+                            </div>
+                            <span class="period" style="color: #475569; font-weight: 600; font-size: 0.8rem; display: block; margin-top:4px;">📅 신청일자: ${group.combinedDatesText}</span>
+                        </div>
+                        <div class="member-status">
+                            <button class="btn-del" onclick="delGroupedChurchData('[${group.indices.join(',')}]')">×</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        let displayTotal = baseTotal > 0 ? baseTotal : totalAwayCount;
+
+        document.getElementById("in-total-setup").value = baseTotal || "";
+        document.getElementById("count-total").innerText = displayTotal + "명";
+        document.getElementById("count-away").innerText = totalAwayCount + "명";
+        document.getElementById("dt-vacation").innerText = vac;
+        document.getElementById("dt-stayout").innerText = stay;
+
+        localStorage.setItem("mil_web_data", JSON.stringify(mData));
+        localStorage.setItem("mil_church_data", JSON.stringify(cData));
+    }
+
+    function toggleSystemActive() {
+        isSystemActive = !isSystemActive;
+        localStorage.setItem("mil_system_active", isSystemActive);
+        init();
+        if(isSystemActive) {
+            alert("🟢 대원들의 출타 및 종교 신청 창이 활성화되었습니다.");
+        } else {
+            alert("🔴 출타 및 종교 신청 창이 잠겼습니다. (관리자 전용 제어 중)");
+        }
+    }
+
+    function updateTotalCount() {
+        const val = document.getElementById("in-total-setup").value;
+        const num = parseInt(val);
+        baseTotal = num > 0 ? num : 0;
+        localStorage.setItem("mil_total_setup", baseTotal);
+        init();
+    }
+
+    function toggleLogin() {
+        if (isAdmin) {
+            isAdmin = false;
+            document.getElementById("login-toggle-btn").innerText = "관리자 로그인";
+            document.getElementById("login-toggle-btn").classList.remove("logged-in");
+            document.getElementById("admin-secret-list-area").style.display = "none";
+            document.getElementById("admin-switch-panel").style.display = "none"; 
+            document.getElementById("top-total-setting-box").style.display = "none"; 
+
+            document.getElementById("away-collapse-box").style.display = "none";
+            document.getElementById("church-collapse-box").style.display = "none";
+            document.getElementById("arrow-away").innerText = "▼";
+            document.getElementById("arrow-church").innerText = "▼";
+
+            alert("로그아웃 되었습니다.");
+            init();
+        } else {
+            document.getElementById("login-modal").style.display = "flex";
+            document.getElementById("login-id").focus();
+        }
+    }
+
+    function closeModal() { document.getElementById("login-modal").style.display = "none"; }
+
+    function checkLogin() {
+        const id = document.getElementById("login-id").value.trim();
+        const pw = document.getElementById("login-pw").value.trim();
+
+        if (id === "admin" && pw === "admin1111") {
+            isAdmin = true;
+            alert("관리자 로그인 성공!");
+            closeModal();
+            document.getElementById("login-toggle-btn").innerText = "로그아웃";
+            document.getElementById("login-toggle-btn").classList.add("logged-in");
+            document.getElementById("admin-secret-list-area").style.display = "block";
+            document.getElementById("admin-switch-panel").style.display = "flex"; 
+            document.getElementById("top-total-setting-box").style.display = "flex"; 
+            init(); 
+        } else {
+            alert("인증 정보 실패");
+        }
+    }
+
+    function resetMilData() {
+        if(confirm("⚠️ 정말로 현재 등록된 모든 출타 신청 기록을 전체 삭제하시겠습니까?")) {
+            mData = [];
+            init();
+            alert("출타 신청자 리스트가 완전히 초기화되었습니다.");
+        }
+    }
+
+    function resetChurchData() {
+        if(confirm("⚠️ 정말로 현재 등록된 모든 일요일 종교 신청 명단을 전체 삭제하시겠습니까?")) {
+            cData = [];
+            init();
+            alert("종교 참석 신청 명부가 완전히 초기화되었습니다.");
+        }
+    }
+
+    function addData() {
+        const rank = document.getElementById("in-rank").value.trim();
+        const name = document.getElementById("in-name").value.trim();
+        let status = document.getElementById("in-status").value;
+        let period = "-";
+
+        if(!rank || !name) { alert("인적사항을 채워주세요!"); return; }
+
+        if(status === "기타") {
+            const etchReason = document.getElementById("in-etc-reason").value.trim();
+            if(!etchReason) { alert("기타 사유를 입력하세요."); return; }
+            status = `기타(${etchReason})`;
+        }
+
+        if(status === "평일외출" || status === "정기외출") {
+            if(selectedOutDates.length === 0) { alert("📅 신청하실 날짜를 달력에서 최소 하루 이상 선택해 주세요!"); return; }
+            period = selectedOutDates.join(", ");
+        } 
+        else {
+            const startVal = document.getElementById("in-start-date").value;
+            const endVal = document.getElementById("in-end-date").value;
+            if(!startVal || !endVal) { alert("출타 일자를 확인해 주세요."); return; }
+            
+            if(status === "정기외박") {
+                const sDate = new Date(startVal);
+                const eDate = new Date(endVal);
+                
+                if(sDate.getDay() !== 0 && sDate.getDay() !== 6) {
+                    alert("⚠️ [정기외박 신청 제한] 시작 날짜는 주말(토, 일)만 선택 가능합니다!");
+                    return;
+                }
+                if(eDate.getDay() !== 0 && eDate.getDay() !== 6) {
+                    alert("⚠️ [정기외박 신청 제한] 복귀 날짜는 주말(토, 일)만 선택 가능합니다!");
+                    return;
+                }
+                if(sDate > eDate) {
+                    alert("⚠️ 시작 날짜가 복귀 날짜보다 클 수 없습니다.");
+                    return;
+                }
+            }
+
+            const sArr = startVal.split("-");
+            const eArr = endVal.split("-");
+            period = `${sArr[1]}.${sArr[2]} ~ ${eArr[1]}.${eArr[2]}`;
+        }
+
+        mData.push({rank, name, status, period});
+        
+        selectedOutDates = [];
+        renderOutDateBadges();
+        init();
+
+        document.getElementById("in-rank").value = "";
+        document.getElementById("in-name").value = "";
+        document.getElementById("in-status").value = "정기휴가";
+        handleStatusChange();
+        setDefaultDates();
+        alert(name + " 대원 등록 완료");
+    }
+
+    function addChurchData() {
+        const rank = document.getElementById("church-rank").value.trim();
+        const name = document.getElementById("church-name").value.trim();
+        const choice = document.getElementById("church-select").value;
+
+        if(!rank || !name) { alert("종교 신청용 계급과 이름을 입력해 주세요!"); return; }
+        if(selectedChurchDates.length === 0) { alert("⛪ 신청할 일요일 날짜를 달력에서 골라주세요!"); return; }
+
+        selectedChurchDates.forEach((dateStr) => {
+            cData.push({ rank, name, choice, date: dateStr });
+        });
+
+        localStorage.setItem("mil_church_data", JSON.stringify(cData));
+        
+        selectedChurchDates = []; 
+        renderDateBadges();       
+        
+        document.getElementById("church-rank").value = "";
+        document.getElementById("church-name").value = "";
+        setDefaultDates();
+        
+        init();
+        alert(`${name} 대원의 일요일 종교 신청 등록이 정상 처리되었습니다.`);
+    }
+
+    function delGroupedAwayData(indexArrayJson) {
+        if(confirm("해당 대원의 출타 신청 기록 전체를 명부에서 삭제하시겠습니까?")) {
+            const targetIndices = JSON.parse(indexArrayJson);
+            targetIndices.sort((a, b) => b - a);
+            targetIndices.forEach(idx => {
+                mData.splice(idx, 1);
+            });
+            init();
+        }
+    }
+    
+    function delGroupedChurchData(indexArrayJson) {
+        if(confirm("해당 대원의 이번 종교 신청 기록 전체를 명부에서 삭제하시겠습니까?")) {
+            const targetIndices = JSON.parse(indexArrayJson);
+            targetIndices.sort((a, b) => b - a);
+            targetIndices.forEach(idx => {
+                cData.splice(idx, 1);
+            });
+            init();
+        }
+    }
+
+    setDefaultDates();
+    init();
+</script>
+</body>
+</html>
