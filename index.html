@@ -195,19 +195,21 @@
         .calendar-cell.sat .day-number { color: #3b82f6; }
         .calendar-cell.other-month { opacity: 0.15; background: #f1f5f9; pointer-events: none; }
         
+        /* 🎨 공통 시그니처 색상 (달력 및 팝업창 연동) */
+        .away-regular { background: #e0f2fe !important; color: #0369a1 !important; }    
+        .away-reward { background: #f3e8ff !important; color: #6b21a8 !important; }     
+        .away-stayout { background: #ffedd5 !important; color: #c2410c !important; }    
+        .away-goout { background: #e0f2f1 !important; color: #00796b !important; }      
+        .away-etc { background: #f1f5f9 !important; color: #475569 !important; }        
+        .church { background: #dcfce7 !important; color: #15803d !important; }          
+        .holiday-badge { background: #ffe4e6 !important; color: #e11d48 !important; }
+
         .cal-badge { 
             font-size: 8.5px; font-weight: 700; padding: 1px 3px; 
             border-radius: 3px; margin-bottom: 2px; text-align: left; 
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; 
             line-height: 1.1; width: 100%; box-sizing: border-box;
         }
-        .cal-badge.away-regular { background: #e0f2fe; color: #0369a1; }    
-        .cal-badge.away-reward { background: #f3e8ff; color: #6b21a8; }     
-        .cal-badge.away-stayout { background: #ffedd5; color: #c2410c; }    
-        .cal-badge.away-goout { background: #e0f2f1; color: #00796b; }      
-        .cal-badge.away-etc { background: #f1f5f9; color: #475569; }        
-        .cal-badge.church { background: #dcfce7; color: #15803d; }          
-        .cal-badge.holiday-badge { background: #ffe4e6; color: #e11d48; }
 
         .form-section { 
             background: var(--card-bg); padding: 18px; border-radius: var(--radius-main); margin-bottom: 16px; 
@@ -660,7 +662,7 @@
         buildComprehensiveCalendar();
     }
 
-    // 🔍 특정 날짜 칸 클릭 시 초과된 인원 리스트까지 싹 다 긁어모아 팝업으로 표출
+    // 🔍 특정 날짜 칸 클릭 시 초과된 인원 리스트까지 달력과 100% 동일한 테마 색상으로 팝업 표출
     function showDateDetailsPopup(year, month, dayNum, holidayName) {
         var monthStr = ((month + 1) < 10 ? "0" + (month + 1) : (month + 1));
         var dayStr = (dayNum < 10 ? "0" + dayNum : dayNum);
@@ -669,7 +671,7 @@
         var listHtml = "";
         var totalCountOnDay = 0;
 
-        // 1. 출타 데이터 필터링
+        // 1. 출타 데이터 필터링 및 색상 동기화
         mData.forEach(function(m) {
             if (!m.period || m.period === "-") return;
             var isMatched = false;
@@ -703,7 +705,7 @@
             }
         });
 
-        // 2. 종교참석 데이터 필터링
+        // 2. 종교참석 데이터 필터링 및 색상 동기화
         cData.forEach(function(c) {
             if (!c.date) return;
             if (c.date.includes(targetMD)) {
@@ -816,7 +818,6 @@
                 }
             });
 
-            // 각 날짜 칸에 생성될 때 정밀하게 고유 인자값을 넘기는 이벤트 연결
             var cellId = "cal-cell-day-" + d;
             gridBox.innerHTML += '<div class="' + cellClass + '" id="' + cellId + '"><div class="day-number">' + d + '</div>' + badgeHtml + '</div>';
             
@@ -1017,7 +1018,6 @@
         }
     }
 
-    // 관리자 로그인 창 양식을 그리는 함수
     function openLoginPopupTemplate() {
         var modalBody = document.getElementById("modal-container-body");
         modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
