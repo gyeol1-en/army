@@ -40,7 +40,6 @@
             position: relative;
         }
         
-        /* 헤더 영역 컴팩트화 */
         .header-area {
             display: flex;
             justify-content: space-between;
@@ -61,7 +60,6 @@
             flex-shrink: 0;
         }
         
-        /* ⚙️ 로그인/로그아웃 버튼 스타일을 출타신청 기능 버튼과 완전히 똑같이 매칭 */
         .btn-login-toggle {
             background: #64748b; color: white; 
             width: auto; padding: 8px 16px;
@@ -78,7 +76,6 @@
         }
         .btn-login-toggle.logged-in:hover { background: #e11d48; }
 
-        /* 출타신청 기능 제어 버튼 */
         .admin-control-panel {
             display: none;
             justify-content: flex-end;
@@ -108,7 +105,7 @@
             padding: 20px; backdrop-filter: blur(8px);
         }
         .modal-content {
-            background: white; padding: 32px 24px; border-radius: 24px; width: 100%; max-width: 360px;
+            background: white; padding: 32px 24px; border-radius: 24px; width: 100%; max-width: 380px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); position: relative;
             animation: modalUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -116,6 +113,18 @@
         .modal-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 24px; text-align: center; color: var(--primary); }
         .modal-close { position: absolute; top: 20px; right: 22px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; transition: color 0.2s; }
         .modal-close:hover { color: var(--primary); }
+
+        /* 📅 달력 상세보기 전용 내부 스타일 */
+        .details-list-container {
+            max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;
+        }
+        .details-item-row {
+            display: flex; align-items: center; justify-content: space-between; background: #f8fafc;
+            padding: 10px 12px; border-radius: 10px; border: 1px solid #e2e8f0;
+        }
+        .details-item-user { font-size: 0.9rem; font-weight: 700; color: var(--primary); }
+        .details-item-user .detail-rank { font-size: 0.72rem; color: var(--text-muted); background: #e2e8f0; padding: 2px 5px; border-radius: 4px; margin-left: 4px; font-weight: 600; }
+        .details-item-badge { font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
 
         .status-board-area { margin-bottom: 20px; }
         .board-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -158,7 +167,6 @@
         .admin-list-only { display: none; }
         .collapsible-content { display: none; margin-top: -4px; margin-bottom: 12px; animation: fadeIn 0.25s ease; }
 
-        /* 📅 달력 컨테이너 및 셀 크기 이쁘게 최적화 (넘침 방지) */
         .calendar-container { 
             background: white; padding: 10px 8px; border-radius: var(--radius-main); 
             border: 1px solid var(--border-color); width: 100%; box-shadow: inset 0 1px 2px rgba(0,0,0,0.01);
@@ -175,19 +183,18 @@
         .calendar-day-label:nth-child(7) { color: #3b82f6; } 
         .calendar-day-label:nth-child(1) { color: var(--danger); } 
         
-        /* 달력 셀 높이를 줄여 콤팩트하게 세팅 */
         .calendar-cell { 
             background: #f8fafc; border-radius: 6px; 
-            min-height: 52px; 
+            min-height: 52px; cursor: pointer;
             padding: 3px 2px; display: flex; flex-direction: column; align-items: stretch; 
-            border: 1px solid #f1f5f9; overflow: hidden;
+            border: 1px solid #f1f5f9; overflow: hidden; transition: background 0.15s;
         }
+        .calendar-cell:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .calendar-cell .day-number { font-size: 0.68rem; font-weight: 800; margin-bottom: 3px; text-align: left; color: #64748b; padding-left: 2px; }
         .calendar-cell.sun .day-number, .calendar-cell.holiday .day-number { color: var(--danger); }
         .calendar-cell.sat .day-number { color: #3b82f6; }
         .calendar-cell.other-month { opacity: 0.15; background: #f1f5f9; pointer-events: none; }
         
-        /* 달력 내부 텍스트 배지 초소형화 */
         .cal-badge { 
             font-size: 8.5px; font-weight: 700; padding: 1px 3px; 
             border-radius: 3px; margin-bottom: 2px; text-align: left; 
@@ -259,7 +266,7 @@
         .btn-del:hover { background: #ffe4e6; color: var(--danger); }
         
         .divider { border-top: 1px solid var(--border-color); margin: 12px 0; display: none; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @pragma fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -450,15 +457,8 @@
 </div>
 
 <div class="modal" id="login-modal">
-    <div class="modal-content">
-        <span class="modal-close" onclick="closeModal()">×</span>
-        <div class="modal-title">🔐 체계 관리자 인증</div>
-        <div style="display:flex; flex-direction:column; gap:14px;">
-            <input type="text" id="login-id" placeholder="관리자 계정 ID">
-            <input type="password" id="login-pw" placeholder="비밀번호 입력">
-            <button class="btn-add" style="margin-top:4px;" onclick="checkLogin()">인증 및 로그인</button>
+    <div class="modal-content" id="modal-container-body">
         </div>
-    </div>
 </div>
 
 <script>
@@ -660,6 +660,79 @@
         buildComprehensiveCalendar();
     }
 
+    // 🔍 특정 날짜 칸 클릭 시 초과된 인원 리스트까지 싹 다 긁어모아 팝업으로 표출
+    function showDateDetailsPopup(year, month, dayNum, holidayName) {
+        var monthStr = ((month + 1) < 10 ? "0" + (month + 1) : (month + 1));
+        var dayStr = (dayNum < 10 ? "0" + dayNum : dayNum);
+        var targetMD = monthStr + "." + dayStr;
+
+        var listHtml = "";
+        var totalCountOnDay = 0;
+
+        // 1. 출타 데이터 필터링
+        mData.forEach(function(m) {
+            if (!m.period || m.period === "-") return;
+            var isMatched = false;
+            var colorClass = "away-etc";
+
+            if (m.status.includes("정기휴가")) colorClass = "away-regular";
+            else if (m.status.includes("포상") || m.status.includes("위로")) colorClass = "away-reward";
+            else if (m.status.includes("외박")) colorClass = "away-stayout";
+            else if (m.status.includes("외출")) colorClass = "away-goout";
+
+            if (m.status.includes("외출")) {
+                if (m.period.includes(targetMD)) isMatched = true;
+            } else {
+                var parts = m.period.split(" ~ ");
+                if (parts.length === 2) {
+                    var startMD = parts[0].split(".");
+                    var endMD = parts[1].split(".");
+                    var startDateObj = new Date(year, parseInt(startMD[0]) - 1, parseInt(startMD[1]));
+                    var endDateObj = new Date(year, parseInt(endMD[0]) - 1, parseInt(endMD[1]));
+                    var thisDateObj = new Date(year, month, dayNum);
+                    if (thisDateObj >= startDateObj && thisDateObj <= endDateObj) isMatched = true;
+                }
+            }
+
+            if (isMatched) {
+                totalCountOnDay++;
+                listHtml += '<div class="details-item-row">' +
+                                '<div class="details-item-user">' + m.name + '<span class="detail-rank">' + m.rank + '</span></div>' +
+                                '<div class="details-item-badge ' + colorClass + '">' + m.status + '</div>' +
+                            '</div>';
+            }
+        });
+
+        // 2. 종교참석 데이터 필터링
+        cData.forEach(function(c) {
+            if (!c.date) return;
+            if (c.date.includes(targetMD)) {
+                totalCountOnDay++;
+                listHtml += '<div class="details-item-row">' +
+                                '<div class="details-item-user">' + c.name + '<span class="detail-rank">' + c.rank + '</span></div>' +
+                                '<div class="details-item-badge church">⛪ 종교참석</div>' +
+                            '</div>';
+            }
+        });
+
+        // 팝업 내부 구성작업
+        var modalBody = document.getElementById("modal-container-body");
+        var holidayHeader = holidayName ? '<div style="color:var(--danger); font-size:0.8rem; font-weight:700; margin-top:-18px; margin-bottom:15px;">🇰🇷 ' + holidayName + '</div>' : '';
+        
+        var popupTitle = (month + 1) + "월 " + dayNum + "일 상세 명부 (" + totalCountOnDay + "명)";
+
+        if (totalCountOnDay === 0) {
+            listHtml = '<div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:0.85rem; font-weight:600;">해당 날짜에 예정된 출타 및 종교 일과가 없습니다.</div>';
+        }
+
+        modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
+                              '<div class="modal-title" style="margin-bottom:10px;">📅 ' + popupTitle + '</div>' +
+                              holidayHeader +
+                              '<div class="details-list-container">' + listHtml + '</div>';
+
+        document.getElementById("login-modal").style.display = "flex";
+    }
+
     function buildComprehensiveCalendar() {
         var year = currentCalDate.getFullYear();
         var month = currentCalDate.getMonth();
@@ -691,6 +764,7 @@
             
             var currentDayOfWeek = new Date(year, month, d).getDay();
             var isHoliday = krHolidays.hasOwnProperty(mdKey);
+            var hName = isHoliday ? krHolidays[mdKey] : "";
 
             var cellClass = "calendar-cell";
             if (currentDayOfWeek === 0 || isHoliday) cellClass += " sun holiday";
@@ -699,7 +773,7 @@
             var badgeHtml = "";
 
             if(isHoliday) {
-                badgeHtml += '<div class="cal-badge holiday-badge">🇰🇷 ' + krHolidays[mdKey] + '</div>';
+                badgeHtml += '<div class="cal-badge holiday-badge">🇰🇷 ' + hName + '</div>';
             }
 
             mData.forEach(function(m) {
@@ -712,7 +786,6 @@
                 else if (m.status.includes("포상") || m.status.includes("위로")) { colorClass = "away-reward"; shortStatus = "포위"; } 
                 else if (m.status.includes("외박")) { colorClass = "away-stayout"; shortStatus = "외박"; } 
                 else if (m.status.includes("외출")) { colorClass = "away-goout"; shortStatus = "외출"; } 
-                else if (m.status.includes("기타")) { colorClass = "away-etc"; shortStatus = "기타"; }
 
                 if (m.status.includes("외출")) {
                     var formattedTarget = currentMonthStr + "." + currentDayStr;
@@ -743,7 +816,18 @@
                 }
             });
 
-            gridBox.innerHTML += '<div class="' + cellClass + '"><div class="day-number">' + d + '</div>' + badgeHtml + '</div>';
+            // 각 날짜 칸에 생성될 때 정밀하게 고유 인자값을 넘기는 이벤트 연결
+            var cellId = "cal-cell-day-" + d;
+            gridBox.innerHTML += '<div class="' + cellClass + '" id="' + cellId + '"><div class="day-number">' + d + '</div>' + badgeHtml + '</div>';
+            
+            (function(_d, _hName) {
+                setTimeout(function() {
+                    var cElem = document.getElementById("cal-cell-day-" + _d);
+                    if(cElem) {
+                        cElem.onclick = function() { showDateDetailsPopup(year, month, _d, _hName); };
+                    }
+                }, 10);
+            })(d, hName);
         }
 
         var totalCells = firstDay + lastDate;
@@ -929,9 +1013,22 @@
             alert("로그아웃 되었습니다.");
             render();
         } else {
-            document.getElementById("login-modal").style.display = "flex";
-            document.getElementById("login-id").focus();
+            openLoginPopupTemplate();
         }
+    }
+
+    // 관리자 로그인 창 양식을 그리는 함수
+    function openLoginPopupTemplate() {
+        var modalBody = document.getElementById("modal-container-body");
+        modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
+                              '<div class="modal-title">🔐 체계 관리자 인증</div>' +
+                              '<div style="display:flex; flex-direction:column; gap:14px;">' +
+                                  '<input type="text" id="login-id" placeholder="관리자 계정 ID">' +
+                                  '<input type="password" id="login-pw" placeholder="비밀번호 입력">' +
+                                  '<button class="btn-add" style="margin-top:4px;" onclick="checkLogin()">인증 및 로그인</button>' +
+                              '</div>';
+        document.getElementById("login-modal").style.display = "flex";
+        document.getElementById("login-id").focus();
     }
 
     function closeModal() { document.getElementById("login-modal").style.display = "none"; }
