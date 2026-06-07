@@ -66,7 +66,7 @@
             animation: fadeIn 0.2s ease;
         }
         .btn-toggle-switch {
-            background: var(--success); color: white; padding: 8px 16px;
+            background: var(--success); color: white; width: auto; padding: 8px 16px;
             border-radius: 30px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer;
             box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); transition: all 0.2s;
         }
@@ -108,7 +108,7 @@
         .mini-total-box label { font-size: 0.75rem; color: #475569; font-weight: 700; white-space: nowrap; }
         .mini-total-box input { width: 50px; padding: 4px 6px; font-size: 0.8rem; text-align: center; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; margin: 0; font-weight: bold; }
 
-        /* 대시보드 그리드 고도화 */
+        /* 대시보드 그리드 */
         .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
         .card {
             background: var(--card-bg); padding: 18px 14px; border-radius: 16px;
@@ -130,7 +130,7 @@
             background: linear-gradient(to bottom, #ffffff, #f8fafc);
         }
 
-        /* 관리자 전용 대형 버튼 배너 */
+        /* 관리자 전용 배너 */
         .admin-toggle-banner {
             width: 100%; background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px;
             padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
@@ -147,11 +147,11 @@
         }
         .btn-reset-list:hover { background: #fee2e2; }
 
-        /* 관리자 컴포넌트 구조 */
+        /* 관리자 컴포넌트 */
         .admin-list-only { display: none; }
         .collapsible-content { display: none; margin-top: 10px; animation: fadeIn 0.2s ease; }
 
-        /* 입력 폼 섹션 고정 정렬 및 세련된 테두리 */
+        /* 입력 폼 섹션 */
         .form-section { 
             background: var(--card-bg); padding: 22px; border-radius: 20px; margin-bottom: 20px; 
             box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
@@ -178,12 +178,11 @@
         .btn-add:hover { background: var(--primary-light); transform: translateY(-1px); }
         .btn-add:active { transform: translateY(0); }
         
-        /* 종교 버튼 전용 스타일 마감 */
         .btn-church { background: #475569; color: white; margin-top: 4px; box-shadow: 0 4px 12px rgba(71, 85, 105, 0.15); }
         .btn-church:hover { background: #334155; transform: translateY(-1px); }
         .btn-church:active { transform: translateY(0); }
 
-        /* 다중 날짜 선택 배지 디자인 */
+        /* 다중 날짜 선택 배지 */
         .selected-dates-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; padding: 2px; }
         .date-badge {
             background: #f1f5f9; color: #334155; font-size: 0.75rem; font-weight: 700;
@@ -195,7 +194,7 @@
         .date-badge::after { content: "×"; font-size: 0.9rem; color: #94a3b8; margin-left: 2px; }
         .date-badge:hover::after { color: var(--danger); }
 
-        /* 명부 및 출타 배지 스타일 */
+        /* 명부 스타일 */
         .member-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; margin-bottom: 12px; }
         .member-item {
             background: var(--card-bg); padding: 14px 16px; border-radius: 14px;
@@ -230,32 +229,42 @@
 </head>
 <body>
 
+<script>
+    (function() {
+        var userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.indexOf('kakaotalk') > -1) {
+            if (userAgent.indexOf('android') > -1) {
+                location.href = 'intent://' + location.href.replace(/https?:\/\//i, '') + '#Intent;scheme=http;package=com.android.chrome;end';
+            } else if (userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1 || userAgent.indexOf('ipod') > -1) {
+                location.href = 'kakaotalk://web/openExternalApp?url=' + encodeURIComponent(location.href);
+            }
+        }
+    })();
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <div class="container">
-    <!-- 헤더 -->
     <div class="header-area">
         <h2>📋 출타종합체계</h2>
         <button id="login-toggle-btn" class="btn-login-toggle" onclick="toggleLogin()">관리자 로그인</button>
     </div>
 
-    <!-- ⚙️ 관리자용 출타신청 ON/OFF 토글 스위치 -->
     <div class="admin-control-panel" id="admin-switch-panel">
         <button id="system-status-btn" class="btn-toggle-switch" onclick="toggleSystemActive()">🟢 출타신청 기능: ON</button>
     </div>
 
-    <!-- 📢 신청 기능 OFF 일때 대원들에게 보여지는 차단 안내 메세지 -->
     <div id="notice-closed-box" class="closed-notice-card">
         🔒 현재 출타종합 입력 기간이 아닙니다.
     </div>
 
-    <!-- 제어 컴포넌트 묶음 -->
     <div id="system-main-contents">
         
-        <!-- 1. 현황판 대시보드 -->
         <div class="status-board-area" id="section-board">
             <div class="board-header-wrapper">
                 <div class="board-main-title" id="board-main-title">📊 중대 출타 현황판</div>
                 
-                <!-- ⚙️ 총원 설정창 -->
                 <div class="mini-total-box" id="top-total-setting-box" onclick="event.stopPropagation();">
                     <label>⚙️ 총원:</label>
                     <input type="number" id="in-total-setup" placeholder="총원" onchange="updateTotalCount()">
@@ -288,10 +297,8 @@
                 </div>
             </div>
 
-            <!-- 🔒 관리자 로그인 시에만 노출되는 대형 토글 메뉴 배너 영역 -->
             <div class="admin-list-only" id="admin-secret-list-area">
                 
-                <!-- [토글 버튼 1] 중대 출타 현황 배너 -->
                 <div class="admin-toggle-banner" onclick="toggleCollapseSection('away-collapse-box', event)">
                     <span style="color: var(--primary);">📊 중대 출타 신청 현황 명부 <span class="arrow-icon" id="arrow-away">▼</span></span>
                     <div class="banner-right-controls">
@@ -304,7 +311,6 @@
                 
                 <div class="divider" id="admin-section-divider"></div>
                 
-                <!-- [토글 버튼 2] 종교 참석 신청 명부 배너 -->
                 <div class="admin-toggle-banner" onclick="toggleCollapseSection('church-collapse-box', event)">
                     <span style="color: var(--primary);">⛪ 일요일 종교 참석 신청 명부 <span class="arrow-icon" id="arrow-church">▼</span></span>
                     <div class="banner-right-controls">
@@ -317,9 +323,8 @@
             </div>
         </div>
 
-        <!-- 2. 출타 신청 등록 폼 -->
         <div class="form-section" id="section-form-away">
-            <div class="form-main-title" id="form-title">✍️ 대원 출타신청 등록</div>
+            <div class="form-main-title" id="form-title">✍️ 출타신청 등록</div>
             <div class="input-group">
                 <input type="text" id="in-rank" placeholder="계급 (예: 상병)">
                 <input type="text" id="in-name" placeholder="이름">
@@ -334,20 +339,17 @@
                     <option value="기타">기타 (직접입력)</option>
                 </select>
                 
-                <!-- 기간 선택기 (휴가, 기타, 정기외박 공용) -->
                 <div class="date-group" id="date-picker-wrapper">
                     <input type="date" id="in-start-date">
                     <span>~</span>
                     <input type="date" id="in-end-date">
                 </div>
 
-                <!-- 외출 전용 단일 날짜 선택기 -->
                 <div class="date-group" id="out-single-picker-wrapper" style="display: none;">
                     <input type="date" id="in-out-single-date" oninput="handleOutDateSelect(this)">
                 </div>
             </div>
 
-            <!-- 날짜 배지 표시 공간 (외출 전용) -->
             <div class="selected-dates-container" id="out-badge-box"></div>
 
             <div class="input-group" id="etc-reason-wrapper" style="display: none;">
@@ -356,7 +358,6 @@
             <button class="btn-add" onclick="addData()">출타신청 등록</button>
         </div>
 
-        <!-- 3. 일요일 종교신청 등록 폼 (보라색 포인트 완벽 제거 및 고급화) -->
         <div class="form-section" id="section-form-church">
             <div class="form-main-title">⛪ 일요일 종교참석 등록</div>
             <div class="input-group">
@@ -376,10 +377,9 @@
             <button class="btn-church" onclick="addChurchData()">종교신청 제출</button>
         </div>
 
-    </div> <!-- system-main-contents 종료 -->
+    </div>
 </div>
 
-<!-- 관리자 로그인 인증 모달 -->
 <div class="modal" id="login-modal">
     <div class="modal-content">
         <span class="modal-close" onclick="closeModal()">×</span>
@@ -393,26 +393,47 @@
 </div>
 
 <script>
-    let mData = JSON.parse(localStorage.getItem("mil_web_data")) || [];
-    let cData = JSON.parse(localStorage.getItem("mil_church_data")) || [];
-    let baseTotal = parseInt(localStorage.getItem("mil_total_setup")) || 0; 
-    let isAdmin = false; 
+    // ⚙️ 전달해주신 본인의 실제 Firebase 설정 정보를 정확히 매핑 완료했습니다. (콤마 유지)
+    var firebaseConfig = {
+        apiKey: "AIzaSyBTkBxYL05kruWSZ8ixuZQLGQJjF2uHgxI",
+        authDomain: "mil-out-system.firebaseapp.com",
+        databaseURL: "https://mil-out-system-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "mil-out-system",
+        storageBucket: "mil-out-system.firebasestorage.app",
+        messagingSenderId: "621860606992",
+        appId: "1:621860606992:web:061325bc099f03004d2695"
+    };
 
-    let isSystemActive = localStorage.getItem("mil_system_active") !== "false";
+    // 파이어베이스 초기화 연결
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
 
-    let selectedChurchDates = [];
-    let selectedOutDates = []; 
+    // 데이터베이스 노드 주소 정의
+    var mDataRef = db.ref("mil_web_data");
+    var cDataRef = db.ref("mil_church_data");
+    var baseTotalRef = db.ref("mil_total_setup");
+    var systemActiveRef = db.ref("mil_system_active");
+
+    // 로컬 메모리 상태 저장 변수들
+    var mData = [];
+    var cData = [];
+    var baseTotal = 0;
+    var isSystemActive = true;
+    var isAdmin = false;
+
+    var selectedChurchDates = [];
+    var selectedOutDates = []; 
 
     function setDefaultDates() {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        let mm = today.getMonth() + 1; 
-        let dd = today.getDate();
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth() + 1; 
+        var dd = today.getDate();
 
         if (mm < 10) mm = '0' + mm;
         if (dd < 10) dd = '0' + dd;
 
-        const formattedToday = `${yyyy}-${mm}-${dd}`;
+        var formattedToday = yyyy + '-' + mm + '-' + dd;
         document.getElementById("in-start-date").value = formattedToday;
         document.getElementById("in-end-date").value = formattedToday;
         document.getElementById("church-date").value = formattedToday;
@@ -420,12 +441,12 @@
     }
 
     function handleOutDateSelect(inputElem) {
-        const dateVal = inputElem.value;
+        var dateVal = inputElem.value;
         if(!dateVal) return;
 
-        const targetDate = new Date(dateVal);
-        const day = targetDate.getDay(); 
-        const currentStatus = document.getElementById("in-status").value;
+        var targetDate = new Date(dateVal);
+        var day = targetDate.getDay(); 
+        var currentStatus = document.getElementById("in-status").value;
 
         if (currentStatus === "평일외출") {
             if (day === 0 || day === 6) {
@@ -441,9 +462,9 @@
             }
         }
 
-        const parts = dateVal.split("-");
-        const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-        const displayStr = `${parts[1]}.${parts[2]}(${dayNames[day]})`;
+        var parts = dateVal.split("-");
+        var dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+        var displayStr = parts[1] + '.' + parts[2] + '(' + dayNames[day] + ')';
 
         if(selectedOutDates.includes(displayStr)) {
             inputElem.value = "";
@@ -456,14 +477,10 @@
     }
 
     function renderOutDateBadges() {
-        const box = document.getElementById("out-badge-box");
+        var box = document.getElementById("out-badge-box");
         box.innerHTML = "";
-        selectedOutDates.forEach((dateText, index) => {
-            box.innerHTML += `
-                <div class="date-badge" onclick="removeOutDateTag(${index})">
-                    ${dateText}
-                </div>
-            `;
+        selectedOutDates.forEach(function(dateText, index) {
+            box.innerHTML += '<div class="date-badge" onclick="removeOutDateTag(' + index + ')">' + dateText + '</div>';
         });
     }
 
@@ -473,11 +490,11 @@
     }
 
     function handleChurchDateSelect(inputElem) {
-        const dateVal = inputElem.value;
+        var dateVal = inputElem.value;
         if(!dateVal) return;
 
-        const targetDate = new Date(dateVal);
-        const day = targetDate.getDay(); 
+        var targetDate = new Date(dateVal);
+        var day = targetDate.getDay(); 
 
         if(day !== 0) {
             alert("⚠️ [종교신청 제한] 일요일만 선택하실 수 있습니다!");
@@ -485,8 +502,8 @@
             return;
         }
 
-        const parts = dateVal.split("-");
-        const displayStr = `${parts[1]}.${parts[2]}(일)`;
+        var parts = dateVal.split("-");
+        var displayStr = parts[1] + '.' + parts[2] + '(일)';
 
         if(selectedChurchDates.includes(displayStr)) {
             inputElem.value = "";
@@ -499,14 +516,10 @@
     }
 
     function renderDateBadges() {
-        const box = document.getElementById("church-badge-box");
+        var box = document.getElementById("church-badge-box");
         box.innerHTML = "";
-        selectedChurchDates.forEach((dateText, index) => {
-            box.innerHTML += `
-                <div class="date-badge" onclick="removeChurchDateTag(${index})">
-                    ${dateText}
-                </div>
-            `;
+        selectedChurchDates.forEach(function(dateText, index) {
+            box.innerHTML += '<div class="date-badge" onclick="removeChurchDateTag(' + index + ')">' + dateText + '</div>';
         });
     }
 
@@ -516,11 +529,11 @@
     }
 
     function handleStatusChange() {
-        const status = document.getElementById("in-status").value;
-        const rangeWrapper = document.getElementById("date-picker-wrapper");
-        const singleWrapper = document.getElementById("out-single-picker-wrapper");
-        const outBadgeBox = document.getElementById("out-badge-box");
-        const etcWrapper = document.getElementById("etc-reason-wrapper");
+        var status = document.getElementById("in-status").value;
+        var rangeWrapper = document.getElementById("date-picker-wrapper");
+        var singleWrapper = document.getElementById("out-single-picker-wrapper");
+        var outBadgeBox = document.getElementById("out-badge-box");
+        var etcWrapper = document.getElementById("etc-reason-wrapper");
         
         selectedOutDates = [];
         renderOutDateBadges();
@@ -540,9 +553,9 @@
     }
 
     function toggleCollapseSection(targetId, event) {
-        const contentBox = document.getElementById(targetId);
-        const arrowId = targetId === "away-collapse-box" ? "arrow-away" : "arrow-church";
-        const arrowSpan = document.getElementById(arrowId);
+        var contentBox = document.getElementById(targetId);
+        var arrowId = targetId === "away-collapse-box" ? "arrow-away" : "arrow-church";
+        var arrowSpan = document.getElementById(arrowId);
         
         if (contentBox.style.display === "block") {
             contentBox.style.display = "none";
@@ -555,18 +568,19 @@
 
     function getSortableDate(periodStr) {
         try {
-            const matches = periodStr.match(/(\d{2})\.(\d{2})/g);
+            var matches = periodStr.match(/(\d{2})\.(\d{2})/g);
             if (!matches || matches.length === 0) return 99999999;
-            const parts = matches[0].split(".");
+            var parts = matches[0].split(".");
             return parseInt(parts[0] + parts[1]);
         } catch(e) {
             return 99999999;
         }
     }
 
-    function init() {
-        const mainContents = document.getElementById("system-main-contents");
-        const noticeBox = document.getElementById("notice-closed-box");
+    // 🔄 화면 렌더링 함수
+    function render() {
+        var mainContents = document.getElementById("system-main-contents");
+        var noticeBox = document.getElementById("notice-closed-box");
 
         if (isAdmin) {
             mainContents.style.display = "block";
@@ -581,7 +595,7 @@
             }
         }
 
-        const switchBtn = document.getElementById("system-status-btn");
+        var switchBtn = document.getElementById("system-status-btn");
         if (isSystemActive) {
             switchBtn.innerText = "🟢 출타신청 기능: ON";
             switchBtn.classList.remove("off-state");
@@ -590,154 +604,169 @@
             switchBtn.classList.add("off-state");
         }
 
-        let vac = 0, stay = 0;
-        mData.forEach(m => {
+        var vac = 0, stay = 0;
+        mData.forEach(function(m) {
             if(m.status.includes("휴가") || m.status.includes("위로") || m.status.includes("기타")) vac++;
             else stay++;
         });
 
-        const box = document.getElementById("member-list-box");
+        var box = document.getElementById("member-list-box");
         box.innerHTML = "";
 
-        let groupedAway = {};
-        mData.forEach((item, originalIndex) => {
-            const key = item.rank + "_" + item.name;
+        var groupedAway = {};
+        mData.forEach(function(item) {
+            var key = item.rank + "_" + item.name;
             if (!groupedAway[key]) {
                 groupedAway[key] = {
                     rank: item.rank,
                     name: item.name,
                     subItems: [], 
-                    indices: []
+                    dbKeys: []
                 };
             }
             groupedAway[key].subItems.push({ status: item.status, period: item.period });
-            groupedAway[key].indices.push(originalIndex);
+            groupedAway[key].dbKeys.push(item.id);
         });
 
-        let awayGroupList = Object.values(groupedAway);
-        let totalAwayCount = awayGroupList.length; 
+        var awayGroupList = Object.keys(groupedAway).map(function(k) { return groupedAway[k]; });
+        var totalAwayCount = awayGroupList.length; 
 
-        awayGroupList.forEach(group => {
-            let minKey = 99999999;
-            group.subItems.forEach(si => {
-                let currentKey = getSortableDate(si.period);
+        awayGroupList.forEach(function(group) {
+            var minKey = 99999999;
+            group.subItems.forEach(function(si) {
+                var currentKey = getSortableDate(si.period);
                 if(currentKey < minKey) { minKey = currentKey; }
             });
             group.sortKey = minKey;
         });
         
-        awayGroupList.sort((a, b) => a.sortKey - b.sortKey);
+        awayGroupList.sort(function(a, b) { return a.sortKey - b.sortKey; });
 
         if (awayGroupList.length === 0) {
-            box.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">현재 신청된 대원이 없습니다.</div>`;
+            box.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">현재 등록된 인원이 없습니다.</div>';
         } else {
-            awayGroupList.forEach(group => {
-                let subBadgesHtml = "";
-                group.subItems.forEach(si => {
-                    subBadgesHtml += `
-                        <div class="status-row-badge">
-                            <span class="badge-label">${si.status}</span>
-                            <span class="badge-period">${si.period}</span>
-                        </div>
-                    `;
+            awayGroupList.forEach(function(group) {
+                var subBadgesHtml = "";
+                group.subItems.forEach(function(si) {
+                    subBadgesHtml += '<div class="status-row-badge"><span class="badge-label">' + si.status + '</span><span class="badge-period">' + si.period + '</span></div>';
                 });
 
-                box.innerHTML += `
-                    <div class="member-item">
-                        <div class="member-info">
-                            <div class="name-heading">
-                                <span class="name-tag">${group.name}</span>
-                                <span class="rank">${group.rank}</span>
-                            </div>
-                            <div class="badge-container">${subBadgesHtml}</div>
-                        </div>
-                        <div class="member-status">
-                            <button class="btn-del" onclick="delGroupedAwayData('[${group.indices.join(',')}]')">×</button>
-                        </div>
-                    </div>
-                `;
+                box.innerHTML += '<div class="member-item"><div class="member-info"><div class="name-heading"><span class="name-tag">' + group.name + '</span><span class="rank">' + group.rank + '</span></div><div class="badge-container">' + subBadgesHtml + '</div></div><div class="member-status"><button class="btn-del" id="btn-del-away-' + group.name + '">×</button></div></div>';
             });
+
+            setTimeout(function() {
+                awayGroupList.forEach(function(group) {
+                    var dBtn = document.getElementById('btn-del-away-' + group.name);
+                    if(dBtn) {
+                        dBtn.onclick = function() { delGroupedAwayData(group.dbKeys); };
+                    }
+                });
+            }, 50);
         }
 
-        const cBox = document.getElementById("church-list-box");
+        var cBox = document.getElementById("church-list-box");
         cBox.innerHTML = "";
         
-        let groupedChurch = {};
-        cData.forEach((item, originalIndex) => {
-            const key = item.rank + "_" + item.name;
+        var groupedChurch = {};
+        cData.forEach(function(item) {
+            var key = item.rank + "_" + item.name;
             if(!groupedChurch[key]) {
                 groupedChurch[key] = {
                     rank: item.rank,
                     name: item.name,
                     dates: [],
-                    indices: [] 
+                    dbKeys: [] 
                 };
             }
             if(!groupedChurch[key].dates.includes(item.date)) {
                 groupedChurch[key].dates.push(item.date);
             }
-            groupedChurch[key].indices.push(originalIndex);
+            groupedChurch[key].dbKeys.push(item.id);
         });
 
-        let churchGroupList = Object.values(groupedChurch);
+        var churchGroupList = Object.keys(groupedChurch).map(function(k) { return groupedChurch[k]; });
 
-        churchGroupList.forEach(group => {
-            group.dates.sort((a, b) => getSortableDate(a) - getSortableDate(b));
+        churchGroupList.forEach(function(group) {
+            group.dates.sort(function(a, b) { return getSortableDate(a) - getSortableDate(b); });
             group.combinedDatesText = group.dates.join(", ");
             group.sortKey = getSortableDate(group.combinedDatesText);
         });
-        churchGroupList.sort((a, b) => a.sortKey - b.sortKey);
+        churchGroupList.sort(function(a, b) { return a.sortKey - b.sortKey; });
 
         if (churchGroupList.length === 0) {
-            cBox.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">현재 신청된 대원이 없습니다.</div>`;
+            cBox.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">현재 등록된 인원이 없습니다.</div>';
         } else {
-            churchGroupList.forEach(group => {
-                cBox.innerHTML += `
-                    <div class="member-item">
-                        <div class="member-info">
-                            <div class="name-heading">
-                                <span class="name-tag">${group.name}</span>
-                                <span class="rank">${group.rank}</span>
-                            </div>
-                            <span class="period" style="color: #475569; font-weight: 600; font-size: 0.8rem; display: block; margin-top:4px;">📅 신청일자: ${group.combinedDatesText}</span>
-                        </div>
-                        <div class="member-status">
-                            <button class="btn-del" onclick="delGroupedChurchData('[${group.indices.join(',')}]')">×</button>
-                        </div>
-                    </div>
-                `;
+            churchGroupList.forEach(function(group) {
+                cBox.innerHTML += '<div class="member-item"><div class="member-info"><div class="name-heading"><span class="name-tag">' + group.name + '</span><span class="rank">' + group.rank + '</span></div><span class="period" style="color: #475569; font-weight: 600; font-size: 0.8rem; display: block; margin-top:4px;">📅 신청일자: ' + group.combinedDatesText + '</span></div><div class="member-status"><button class="btn-del" id="btn-del-church-' + group.name + '">×</button></div></div>';
             });
+
+            setTimeout(function() {
+                churchGroupList.forEach(function(group) {
+                    var dBtn = document.getElementById('btn-del-church-' + group.name);
+                    if(dBtn) {
+                        dBtn.onclick = function() { delGroupedChurchData(group.dbKeys); };
+                    }
+                });
+            }, 50);
         }
 
-        let displayTotal = baseTotal > 0 ? baseTotal : totalAwayCount;
+        var displayTotal = baseTotal > 0 ? baseTotal : totalAwayCount;
 
         document.getElementById("in-total-setup").value = baseTotal || "";
         document.getElementById("count-total").innerText = displayTotal + "명";
         document.getElementById("count-away").innerText = totalAwayCount + "명";
         document.getElementById("dt-vacation").innerText = vac;
         document.getElementById("dt-stayout").innerText = stay;
-
-        localStorage.setItem("mil_web_data", JSON.stringify(mData));
-        localStorage.setItem("mil_church_data", JSON.stringify(cData));
     }
 
-    function toggleSystemActive() {
-        isSystemActive = !isSystemActive;
-        localStorage.setItem("mil_system_active", isSystemActive);
-        init();
-        if(isSystemActive) {
-            alert("🟢 대원들의 출타 및 종교 신청 창이 활성화되었습니다.");
-        } else {
-            alert("🔴 출타 및 종교 신청 창이 잠겼습니다. (관리자 전용 제어 중)");
+    // 📡 Firebase 실시간 데이터 동기화 감지
+    mDataRef.on("value", function(snapshot) {
+        var data = snapshot.val();
+        mData = [];
+        if (data) {
+            Object.keys(data).forEach(function(key) {
+                mData.push(Object.assign({ id: key }, data[key]));
+            });
         }
+        render();
+    });
+
+    cDataRef.on("value", function(snapshot) {
+        var data = snapshot.val();
+        cData = [];
+        if (data) {
+            Object.keys(data).forEach(function(key) {
+                cData.push(Object.assign({ id: key }, data[key]));
+            });
+        }
+        render();
+    });
+
+    baseTotalRef.on("value", function(snapshot) {
+        baseTotal = parseInt(snapshot.val()) || 0;
+        render();
+    });
+
+    systemActiveRef.on("value", function(snapshot) {
+        isSystemActive = snapshot.val() !== false; 
+        render();
+    });
+
+    function toggleSystemActive() {
+        var nextState = !isSystemActive;
+        systemActiveRef.set(nextState).then(function() {
+            if(nextState) {
+                alert("🟢 출타 및 종교 신청 창이 활성화되었습니다.");
+            } else {
+                alert("🔴 출타 및 종교 신청 창이 잠겼습니다. (관리자 전용 제어 중)");
+            }
+        });
     }
 
     function updateTotalCount() {
-        const val = document.getElementById("in-total-setup").value;
-        const num = parseInt(val);
-        baseTotal = num > 0 ? num : 0;
-        localStorage.setItem("mil_total_setup", baseTotal);
-        init();
+        var val = document.getElementById("in-total-setup").value;
+        var num = parseInt(val);
+        baseTotalRef.set(num > 0 ? num : 0);
     }
 
     function toggleLogin() {
@@ -755,7 +784,7 @@
             document.getElementById("arrow-church").innerText = "▼";
 
             alert("로그아웃 되었습니다.");
-            init();
+            render();
         } else {
             document.getElementById("login-modal").style.display = "flex";
             document.getElementById("login-id").focus();
@@ -765,8 +794,8 @@
     function closeModal() { document.getElementById("login-modal").style.display = "none"; }
 
     function checkLogin() {
-        const id = document.getElementById("login-id").value.trim();
-        const pw = document.getElementById("login-pw").value.trim();
+        var id = document.getElementById("login-id").value.trim();
+        var pw = document.getElementById("login-pw").value.trim();
 
         if (id === "admin" && pw === "admin1111") {
             isAdmin = true;
@@ -777,7 +806,7 @@
             document.getElementById("admin-secret-list-area").style.display = "block";
             document.getElementById("admin-switch-panel").style.display = "flex"; 
             document.getElementById("top-total-setting-box").style.display = "flex"; 
-            init(); 
+            render(); 
         } else {
             alert("인증 정보 실패");
         }
@@ -785,32 +814,32 @@
 
     function resetMilData() {
         if(confirm("⚠️ 정말로 현재 등록된 모든 출타 신청 기록을 전체 삭제하시겠습니까?")) {
-            mData = [];
-            init();
-            alert("출타 신청자 리스트가 완전히 초기화되었습니다.");
+            mDataRef.remove().then(function() {
+                alert("출타 신청자 리스트가 완전히 초기화되었습니다.");
+            });
         }
     }
 
     function resetChurchData() {
         if(confirm("⚠️ 정말로 현재 등록된 모든 일요일 종교 신청 명단을 전체 삭제하시겠습니까?")) {
-            cData = [];
-            init();
-            alert("종교 참석 신청 명부가 완전히 초기화되었습니다.");
+            cDataRef.remove().then(function() {
+                alert("종교 참석 신청 명부가 완전히 초기화되었습니다.");
+            });
         }
     }
 
     function addData() {
-        const rank = document.getElementById("in-rank").value.trim();
-        const name = document.getElementById("in-name").value.trim();
-        let status = document.getElementById("in-status").value;
-        let period = "-";
+        var rank = document.getElementById("in-rank").value.trim();
+        var name = document.getElementById("in-name").value.trim();
+        var status = document.getElementById("in-status").value;
+        var period = "-";
 
         if(!rank || !name) { alert("인적사항을 채워주세요!"); return; }
 
         if(status === "기타") {
-            const etchReason = document.getElementById("in-etc-reason").value.trim();
+            var etchReason = document.getElementById("in-etc-reason").value.trim();
             if(!etchReason) { alert("기타 사유를 입력하세요."); return; }
-            status = `기타(${etchReason})`;
+            status = "기타(" + etchReason + ")";
         }
 
         if(status === "평일외출" || status === "정기외출") {
@@ -818,13 +847,13 @@
             period = selectedOutDates.join(", ");
         } 
         else {
-            const startVal = document.getElementById("in-start-date").value;
-            const endVal = document.getElementById("in-end-date").value;
+            var startVal = document.getElementById("in-start-date").value;
+            var endVal = document.getElementById("in-end-date").value;
             if(!startVal || !endVal) { alert("출타 일자를 확인해 주세요."); return; }
             
             if(status === "정기외박") {
-                const sDate = new Date(startVal);
-                const eDate = new Date(endVal);
+                var sDate = new Date(startVal);
+                var eDate = new Date(endVal);
                 
                 if(sDate.getDay() !== 0 && sDate.getDay() !== 6) {
                     alert("⚠️ [정기외박 신청 제한] 시작 날짜는 주말(토, 일)만 선택 가능합니다!");
@@ -840,74 +869,74 @@
                 }
             }
 
-            const sArr = startVal.split("-");
-            const eArr = endVal.split("-");
-            period = `${sArr[1]}.${sArr[2]} ~ ${eArr[1]}.${eArr[2]}`;
+            var sArr = startVal.split("-");
+            var eArr = endVal.split("-");
+            period = sArr[1] + '.' + sArr[2] + ' ~ ' + eArr[1] + '.' + eArr[2];
         }
 
-        mData.push({rank, name, status, period});
-        
-        selectedOutDates = [];
-        renderOutDateBadges();
-        init();
+        var newRecordRef = mDataRef.push();
+        newRecordRef.set({ rank: rank, name: name, status: status, period: period })
+        .then(function() {
+            selectedOutDates = [];
+            renderOutDateBadges();
 
-        document.getElementById("in-rank").value = "";
-        document.getElementById("in-name").value = "";
-        document.getElementById("in-status").value = "정기휴가";
-        handleStatusChange();
-        setDefaultDates();
-        alert(name + " 대원 등록 완료");
+            document.getElementById("in-rank").value = "";
+            document.getElementById("in-name").value = "";
+            document.getElementById("in-status").value = "정기휴가";
+            handleStatusChange();
+            setDefaultDates();
+            alert(name + " 등록 완료");
+        })
+        .catch(function(err) {
+            alert("원격 서버 등록 실패: " + err.message);
+        });
     }
 
     function addChurchData() {
-        const rank = document.getElementById("church-rank").value.trim();
-        const name = document.getElementById("church-name").value.trim();
-        const choice = document.getElementById("church-select").value;
+        var rank = document.getElementById("church-rank").value.trim();
+        var name = document.getElementById("church-name").value.trim();
+        var choice = document.getElementById("church-select").value;
 
         if(!rank || !name) { alert("종교 신청용 계급과 이름을 입력해 주세요!"); return; }
         if(selectedChurchDates.length === 0) { alert("⛪ 신청할 일요일 날짜를 달력에서 골라주세요!"); return; }
 
-        selectedChurchDates.forEach((dateStr) => {
-            cData.push({ rank, name, choice, date: dateStr });
+        var completeCount = 0;
+        selectedChurchDates.forEach(function(dateStr) {
+            var newChurchRecordRef = cDataRef.push();
+            newChurchRecordRef.set({ rank: rank, name: name, choice: choice, date: dateStr })
+            .then(function() {
+                completeCount++;
+                if(completeCount === selectedChurchDates.length) {
+                    selectedChurchDates = []; 
+                    renderDateBadges();       
+                    
+                    document.getElementById("church-rank").value = "";
+                    document.getElementById("church-name").value = "";
+                    setDefaultDates();
+                    
+                    alert("✅ 종교신청이 완료되었습니다.");
+                }
+            });
         });
-
-        localStorage.setItem("mil_church_data", JSON.stringify(cData));
-        
-        selectedChurchDates = []; 
-        renderDateBadges();       
-        
-        document.getElementById("church-rank").value = "";
-        document.getElementById("church-name").value = "";
-        setDefaultDates();
-        
-        init();
-        alert(`${name} 대원의 일요일 종교 신청 등록이 정상 처리되었습니다.`);
     }
 
-    function delGroupedAwayData(indexArrayJson) {
+    function delGroupedAwayData(keysArray) {
         if(confirm("해당 대원의 출타 신청 기록 전체를 명부에서 삭제하시겠습니까?")) {
-            const targetIndices = JSON.parse(indexArrayJson);
-            targetIndices.sort((a, b) => b - a);
-            targetIndices.forEach(idx => {
-                mData.splice(idx, 1);
+            keysArray.forEach(function(key) {
+                mDataRef.child(key).remove();
             });
-            init();
         }
     }
     
-    function delGroupedChurchData(indexArrayJson) {
-        if(confirm("해당 대원의 이번 종교 신청 기록 전체를 명부에서 삭제하시겠습니까?")) {
-            const targetIndices = JSON.parse(indexArrayJson);
-            targetIndices.sort((a, b) => b - a);
-            targetIndices.forEach(idx => {
-                cData.splice(idx, 1);
+    function delGroupedChurchData(keysArray) {
+        if(confirm("해당 인원의 이번 종교 신청 기록 전체를 명부에서 삭제하시겠습니까?")) {
+            keysArray.forEach(function(key) {
+                cDataRef.child(key).remove();
             });
-            init();
         }
     }
 
     setDefaultDates();
-    init();
 </script>
 </body>
 </html>
