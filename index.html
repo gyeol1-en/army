@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>출타 체계 종합 정보 시스템</title>
     <style>
         :root {
@@ -23,6 +23,12 @@
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "SF Pro KR", "Malgun Gothic", sans-serif;
             margin: 0; padding: 12px 10px 40px 10px;
@@ -38,9 +44,9 @@
             max-width: 480px; 
             margin: 0 auto; 
             position: relative;
+            overflow-x: hidden;
         }
         
-        /* 모바일 상단 고정 영역 */
         .sticky-header-group {
             position: sticky;
             top: 0;
@@ -70,7 +76,6 @@
             flex-shrink: 0;
         }
         
-        /* 모바일에 최적화된 초슬림 로그인/로그아웃 버튼 + 터치 효과 */
         .btn-login-toggle {
             background: #64748b; color: white; 
             height: 28px; padding: 0 10px;
@@ -79,6 +84,8 @@
             box-shadow: 0 1px 4px rgba(100, 116, 139, 0.15); 
             transition: transform 0.1s ease, background-color 0.1s ease, opacity 0.1s ease;
             flex-shrink: 0;
+            width: 50%;
+            max-width: 90px;
         }
         .btn-login-toggle:active, .btn-login-toggle:focus { 
             transform: scale(0.92); 
@@ -167,7 +174,6 @@
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         }
 
-        /* 공지사항 카드 박스 */
         .notice-board-card {
             grid-column: span 2;
             background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
@@ -239,12 +245,12 @@
         }
         .btn-notice-save:active { transform: scale(0.92); opacity: 0.8; }
         
-        /* 모바일에 최적화된 아주 작고 세련된 공지 수정/취소 토글 버튼 + 터치 효과 */
         .btn-notice-edit-toggle {
             background: #fee2e2; border: 1px solid #fecaca; color: #dc2626;
             font-size: 0.65rem; font-weight: 700; cursor: pointer;
-            height: 22px; padding: 0 8px; border-radius: 10px;
+            height: 22px; padding: 0 4px; border-radius: 10px;
             display: none; align-items: center; justify-content: center;
+            width: 50%; max-width: 42px;
             transition: transform 0.1s ease, background-color 0.1s ease, opacity 0.1s ease;
         }
         .btn-notice-edit-toggle:active, .btn-notice-edit-toggle:focus { 
@@ -266,7 +272,7 @@
 
         .btn-reset-list {
             background: #fff1f2; color: var(--danger); font-size: 0.68rem; font-weight: 700;
-            height: 26px; padding: 0 8px; border-radius: 14px; border: 1px solid #ffe4e6; cursor: pointer;
+            height: 26px; width: 68px; padding: 0 4px; border-radius: 14px; border: 1px solid #ffe4e6; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.1s ease, opacity 0.1s ease;
         }
@@ -417,7 +423,7 @@
     <div class="sticky-header-group">
         <div class="header-area">
             <h2>📋 출타종합체계</h2>
-            <button id="login-toggle-btn" class="btn-login-toggle" onclick="toggleLogin()">관리자 로그인</button>
+            <button id="login-toggle-btn" class="btn-login-toggle" onclick="toggleLogin()">로그인</button>
         </div>
 
         <div class="admin-control-panel" id="admin-switch-panel">
@@ -439,7 +445,6 @@
                 </div>
             </div>
 
-            <!-- 공지사항 카드 박스 -->
             <div class="notice-board-card">
                 <div class="notice-board-header">
                     <div class="notice-board-title">🚨 공지사항</div>
@@ -546,13 +551,13 @@
                 </select>
                 
                 <div class="date-group" id="date-picker-wrapper">
-                    <input type="date" id="in-start-date">
+                    <input type="date" id="in-start-date" onclick="this.value='';" onfocus="this.value='';">
                     <span>~</span>
-                    <input type="date" id="in-end-date">
+                    <input type="date" id="in-end-date" onclick="this.value='';" onfocus="this.value='';">
                 </div>
 
                 <div class="date-group" id="out-single-picker-wrapper" style="display: none;">
-                    <input type="date" id="in-out-single-date" value="" onchange="handleOutDateSelect(this)">
+                    <input type="date" id="in-out-single-date" value="" onclick="this.value='';" onfocus="this.value='';" onchange="handleOutDateSelect(this)">
                 </div>
             </div>
 
@@ -587,7 +592,7 @@
                     <option value="참석">종교참석</option>
                 </select>
                 <div class="date-group" style="width: 60%;">
-                    <input type="date" id="church-date" value="" inputmode="numeric" onchange="handleChurchDateSelect(this)">
+                    <input type="date" id="church-date" value="" inputmode="numeric" onclick="this.value='';" onfocus="this.value='';" onchange="handleChurchDateSelect(this)">
                 </div>
             </div>
             
@@ -755,7 +760,6 @@
         selectedOutDates = [];
         renderOutDateBadges();
         
-        // 날짜 단일 선택 inputs 초기화 및 값 비우기 (오늘 날짜 자동 입력 방지)
         document.getElementById("in-out-single-date").value = "";
 
         if (status === "평일외출" || status === "정기외출" || status === "면회") {
@@ -1179,7 +1183,7 @@
     function toggleLogin() {
         if (isAdmin) {
             isAdmin = false;
-            document.getElementById("login-toggle-btn").innerText = "관리자 로그인";
+            document.getElementById("login-toggle-btn").innerText = "로그인";
             document.getElementById("login-toggle-btn").classList.remove("logged-in");
             document.getElementById("admin-secret-list-area").style.display = "none";
             document.getElementById("admin-switch-panel").style.display = "none"; 
