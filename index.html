@@ -358,6 +358,17 @@
         button:active { transform: scale(0.97); opacity: 0.85; }
         .btn-add { background: var(--primary); color: white; }
         .btn-church { background: var(--accent); color: white; margin-top: 2px; }
+        
+        /* 관리자 전용 프로그램 코드 보기 버튼 스타일 (기본 숨김) */
+        .admin-program-code-box {
+            display: none;
+            margin-bottom: 12px;
+        }
+        .btn-program-code {
+            background: #334155; color: #ffffff; border: 1px solid #1e293b;
+            height: 40px; min-height: 40px; font-size: 0.8rem; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1);
+        }
 
         .selected-dates-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
         .date-badge {
@@ -598,6 +609,11 @@
             
             <div class="selected-dates-container" id="church-badge-box"></div>
             <button class="btn-church" onclick="addChurchData()">종교신청 제출</button>
+        </div>
+
+        <!-- 관리자 전용 독립 프로그램 코드 보기 영역 -->
+        <div class="admin-program-code-box" id="admin-program-code-section">
+            <button class="btn-program-code" onclick="showProgramCodeModal()">📄 프로그램 전체 소스코드 보기</button>
         </div>
     </div>
 </div>
@@ -999,15 +1015,18 @@
         var mainContents = document.getElementById("system-main-contents");
         var noticeBox = document.getElementById("notice-closed-box");
         var noticeEditBtn = document.getElementById("btn-notice-edit-toggle");
+        var adminProgramCodeSection = document.getElementById("admin-program-code-section");
 
         if (isAdmin) {
             mainContents.style.display = "block";
             noticeBox.style.display = "none";
             noticeEditBtn.style.display = "flex";
+            if (adminProgramCodeSection) adminProgramCodeSection.style.display = "block";
         } else {
             mainContents.style.display = isSystemActive ? "block" : "none";
             noticeBox.style.display = isSystemActive ? "none" : "block";
             noticeEditBtn.style.display = "none";
+            if (adminProgramCodeSection) adminProgramCodeSection.style.display = "none";
             isNoticeEditing = false;
             document.getElementById("notice-edit-view").style.display = "none";
             document.getElementById("notice-display-view").style.display = "block";
@@ -1171,6 +1190,7 @@
             document.getElementById("away-collapse-box").style.display = "none";
             document.getElementById("church-collapse-box").style.display = "none";
             document.getElementById("calendar-collapse-box").style.display = "none";
+            document.getElementById("admin-program-code-section").style.display = "none";
             document.getElementById("arrow-away").innerText = "▼";
             document.getElementById("arrow-church").innerText = "▼";
             document.getElementById("arrow-calendar").innerText = "▼";
@@ -1209,6 +1229,7 @@
             document.getElementById("admin-secret-list-area").style.display = "block";
             document.getElementById("admin-switch-panel").style.display = "flex"; 
             document.getElementById("top-total-setting-box").style.display = "flex"; 
+            document.getElementById("admin-program-code-section").style.display = "block";
             render(); 
         } else {
             alert("인증 정보가 올바르지 않습니다.");
@@ -1225,6 +1246,21 @@
         if(confirm("⚠️ 정말로 현재 등록된 모든 일요일 종교 신청 명단을 전체 삭제하시겠습니까?")) {
             cDataRef.remove().then(function() { alert("종교 참석 신청 명부가 완전히 초기화되었습니다."); });
         }
+    }
+
+    function showProgramCodeModal() {
+        var modalBody = document.getElementById("modal-container-body");
+        var fullCode = document.documentElement.outerHTML;
+        
+        modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
+                              '<div class="modal-title">📄 프로그램 전체 소스코드</div>' +
+                              '<div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">아래 박스를 드래그하여 전체 코드를 복사할 수 있습니다.</div>' +
+                              '<textarea readonly style="width:100%; height:260px; font-family:monospace; font-size:0.75rem; padding:8px; border:1px solid #475569; border-radius:8px; background:#f8fafc; color:#1e293b; user-select:text; -webkit-user-select:text;" onclick="this.select();">' + escapeHtml(fullCode) + '</textarea>';
+        document.getElementById("login-modal").style.display = "flex";
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     function addData() {
