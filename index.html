@@ -668,21 +668,6 @@
 
         var targetDate = new Date(dateVal);
         var day = targetDate.getDay(); 
-        var currentStatus = document.getElementById("in-status").value;
-
-        if (currentStatus === "평일외출") {
-            if (day === 0 || day === 6) {
-                alert("⚠️ [외출 신청 제한] 평일(월~금)만 선택하실 수 있습니다!");
-                inputElem.value = "";
-                return;
-            }
-        } else if (currentStatus === "정기외출") {
-            if (day !== 0 && day !== 6) {
-                alert("⚠️ [신청 제한] 주말(토, 일)만 선택하실 수 있습니다!");
-                inputElem.value = "";
-                return;
-            }
-        }
 
         var parts = dateVal.split("-");
         var dayNames = ["일", "월", "화", "수", "목", "금", "토"];
@@ -717,15 +702,10 @@
 
         var targetDate = new Date(dateVal);
         var day = targetDate.getDay(); 
-
-        if(day !== 0) {
-            alert("⚠️ [종교신청 제한] 일요일만 선택하실 수 있습니다!");
-            inputElem.value = "";
-            return;
-        }
+        var dayNames = ["일", "월", "화", "수", "목", "금", "토"];
 
         var parts = dateVal.split("-");
-        var displayStr = parts[1] + '.' + parts[2] + '(일)';
+        var displayStr = parts[1] + '.' + parts[2] + '(' + dayNames[day] + ')';
 
         if(selectedChurchDates.includes(displayStr)) {
             inputElem.value = "";
@@ -1286,11 +1266,6 @@
                 eDate = new Date(endVal);
             }
 
-            if(status === "정기외박") {
-                if(sDate.getDay() !== 0 && sDate.getDay() !== 6) { alert("⚠️ [정기외박 신청 제한] 시작 날짜는 주말(토, 일)만 선택 가능합니다!"); return; }
-                if(eDate.getDay() !== 0 && eDate.getDay() !== 6) { alert("⚠️ [정기외박 신청 제한] 복귀 날짜는 주말(토, 일)만 선택 가능합니다!"); return; }
-            }
-
             var sArr = startVal.split("-"); var eArr = endVal.split("-");
             period = sArr[1] + '.' + sArr[2] + ' ~ ' + eArr[1] + '.' + eArr[2];
         }
@@ -1322,7 +1297,7 @@
             if(!rank) { alert("종교 신청용 직접 입력 계급을 입력해 주세요!"); return; }
         }
         if(!name) { alert("이름을 입력해 주세요!"); return; }
-        if(selectedChurchDates.length === 0) { alert("⛪ 신청할 일요일 날짜를 달력에서 골라주세요!"); return; }
+        if(selectedChurchDates.length === 0) { alert("⛪ 신청할 날짜를 골라주세요!"); return; }
 
         var completeCount = 0;
         selectedChurchDates.forEach(function(dateStr) {
