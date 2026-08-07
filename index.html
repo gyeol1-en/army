@@ -3,31 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>출타 체계 종합 정보 시스템</title>
-    
-    <!-- 카카오톡 인앱 브라우저 iOS/Android 자동 외부 브라우저(Safari/Chrome) 이관 스크립트 -->
-    <script>
-      (function() {
-        var userAgent = navigator.userAgent.toLowerCase();
-        
-        // 카카오톡 인앱 브라우저 감지
-        if (userAgent.indexOf('kakaotalk') > -1) {
-          var currentUrl = location.href;
-          var cleanUrl = currentUrl.replace(/^https?:\/\//i, '');
-
-          // 1. iOS (아이폰/아이패드/아이팟) -> ftp:// 스키마로 Safari 자동 이관
-          if (userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1 || userAgent.indexOf('ipod') > -1) {
-            location.href = 'ftp://' + cleanUrl;
-          } 
-          // 2. Android -> Intent 스키마로 Chrome 자동 이관
-          else if (userAgent.indexOf('android') > -1) {
-            var scheme = location.protocol.replace(':', '');
-            location.href = 'intent://' + cleanUrl + '#Intent;scheme=' + scheme + ';package=com.android.chrome;end';
-          }
-        }
-      })();
-    </script>
-
+    <title>출타종합 시스템</title>
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -443,16 +419,16 @@
 <div class="container">
     <div class="sticky-header-group">
         <div class="header-area">
-            <h2>📋 출타종합체계</h2>
+            <h2>📢 출타종합체계</h2>
             <button id="login-toggle-btn" class="btn-login-toggle" onclick="toggleLogin()">로그인</button>
         </div>
 
         <div class="admin-control-panel" id="admin-switch-panel">
-            <button id="system-status-btn" class="btn-toggle-switch" onclick="toggleSystemActive()">🟢 출타신청 기능: ON</button>
+            <button id="system-status-btn" class="btn-toggle-switch" onclick="toggleSystemActive()">⚙️ 출타신청 기능: ON</button>
         </div>
 
         <div id="notice-closed-box" class="closed-notice-card">
-            🔒 현재 출타종합 입력 기간이 아닙니다.
+            🚫 현재 출타종합 입력 기간이 아닙니다.
         </div>
     </div>
 
@@ -468,7 +444,7 @@
 
             <div class="notice-board-card">
                 <div class="notice-board-header">
-                    <div class="notice-board-title">🚨 공지사항</div>
+                    <div class="notice-board-title">🔔 공지사항</div>
                     <button id="btn-notice-edit-toggle" class="btn-notice-edit-toggle" onclick="toggleNoticeEditMode()">수정</button>
                 </div>
                 <div id="notice-display-view" class="notice-content-text">등록된 공지사항이 없습니다.</div>
@@ -520,7 +496,7 @@
                 </div>
 
                 <div class="admin-toggle-banner" onclick="toggleCollapseSection('away-collapse-box', event)">
-                    <span style="color: var(--primary);">📊 중대 출타 신청 현황 명부 <span class="arrow-icon" id="arrow-away">▼</span></span>
+                    <span style="color: var(--primary);">📋 중대 출타 신청 현황 명부 <span class="arrow-icon" id="arrow-away">▼</span></span>
                     <div class="banner-right-controls">
                         <button class="btn-reset-list" onclick="event.stopPropagation(); resetMilData();">출타 초기화</button>
                     </div>
@@ -544,7 +520,7 @@
         </div>
 
         <div class="form-section" id="section-form-away">
-            <div class="form-main-title" id="form-title">✍️ 출타신청 등록</div>
+            <div class="form-main-title" id="form-title">✏️ 출타신청 등록</div>
             <div class="input-group">
                 <select id="in-rank" onchange="handleRankChange('away')">
                     <option value="" disabled selected>계급 선택</option>
@@ -622,7 +598,7 @@
         </div>
 
         <div class="admin-program-code-box" id="admin-program-code-section">
-            <button class="btn-program-code" onclick="showProgramCodeModal()">📄 프로그램 전체 소스코드 보기</button>
+            <button class="btn-program-code" onclick="showProgramCodeModal()">💻 프로그램 전체 소스코드 보기</button>
         </div>
     </div>
 </div>
@@ -869,7 +845,7 @@
         });
 
         var modalBody = document.getElementById("modal-container-body");
-        var holidayHeader = holidayName ? '<div style="color:var(--danger); font-size:0.75rem; font-weight:700; margin-top:-8px; margin-bottom:10px;">🇰🇷 ' + holidayName + '</div>' : '';
+        var holidayHeader = holidayName ? '<div style="color:var(--danger); font-size:0.75rem; font-weight:700; margin-top:-8px; margin-bottom:10px;">🚩 ' + holidayName + '</div>' : '';
         var popupTitle = (month + 1) + "월 " + dayNum + "일 상세 명부 (" + totalCountOnDay + "명)";
 
         if (totalCountOnDay === 0) {
@@ -877,7 +853,7 @@
         }
 
         modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
-                              '<div class="modal-title" style="margin-bottom:6px;">📅 ' + popupTitle + '</div>' +
+                              '<div class="modal-title" style="margin-bottom:6px;">📋 ' + popupTitle + '</div>' +
                               holidayHeader +
                               '<div class="details-list-container">' + listHtml + '</div>';
 
@@ -924,7 +900,7 @@
             var badgeHtml = "";
 
             if(isHoliday) {
-                badgeHtml += '<div class="cal-badge holiday-badge">🇰🇷 ' + hName + '</div>';
+                badgeHtml += '<div class="cal-badge holiday-badge">🚩 ' + hName + '</div>';
             }
 
             mData.forEach(function(m) {
@@ -1046,10 +1022,10 @@
 
         var switchBtn = document.getElementById("system-status-btn");
         if (isSystemActive) {
-            switchBtn.innerText = "🟢 출타신청 기능: ON";
+            switchBtn.innerText = "⚙️ 출타신청 기능: ON";
             switchBtn.classList.remove("off-state");
         } else {
-            switchBtn.innerText = "🔴 출타신청 기능: OFF";
+            switchBtn.innerText = "⚙️ 출타신청 기능: OFF";
             switchBtn.classList.add("off-state");
         }
 
@@ -1213,7 +1189,7 @@
     function openLoginPopupTemplate() {
         var modalBody = document.getElementById("modal-container-body");
         modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
-                              '<div class="modal-title">🔐 체계 관리자 인증</div>' +
+                              '<div class="modal-title">🔒 체계 관리자 인증</div>' +
                               '<div style="display:flex; flex-direction:column; gap:10px;">' +
                                   '<input type="text" id="login-id" placeholder="관리자 계정 ID">' +
                                   '<input type="password" id="login-pw" placeholder="비밀번호 입력">' +
@@ -1262,7 +1238,7 @@
         var fullCode = document.documentElement.outerHTML;
         
         modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
-                              '<div class="modal-title">📄 프로그램 전체 소스코드</div>' +
+                              '<div class="modal-title">💻 프로그램 전체 소스코드</div>' +
                               '<div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">아래 박스를 드래그하여 전체 코드를 복사할 수 있습니다.</div>' +
                               '<textarea readonly style="width:100%; height:260px; font-family:monospace; font-size:0.75rem; padding:8px; border:1px solid #475569; border-radius:8px; background:#f8fafc; color:#1e293b; user-select:text; -webkit-user-select:text;" onclick="this.select();">' + escapeHtml(fullCode) + '</textarea>';
         document.getElementById("login-modal").style.display = "flex";
@@ -1292,7 +1268,7 @@
         }
 
         if(status === "평일외출" || status === "정기외출" || status === "면회") {
-            if(selectedOutDates.length === 0) { alert("📅 신청하실 날짜를 달력에서 최소 하루 이상 선택해 주세요!"); return; }
+            if(selectedOutDates.length === 0) { alert("⚠️ 신청하실 날짜를 달력에서 최소 하루 이상 선택해 주세요!"); return; }
             period = selectedOutDates.join(", ");
         } 
         else {
@@ -1356,7 +1332,7 @@
                     document.getElementById("church-name").value = "";
                     document.getElementById("church-date").value = "";
                     handleRankChange('church');
-                    alert("✅ 종교신청이 완료되었습니다.");
+                    alert("⛪ 종교신청이 완료되었습니다.");
                 }
             });
         });
