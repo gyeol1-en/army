@@ -419,7 +419,7 @@
 <div class="container">
     <div class="sticky-header-group">
         <div class="header-area">
-            <h2>📢 출타종합체계</h2>
+            <h2>📢 출타종합 시스템</h2>
             <button id="login-toggle-btn" class="btn-login-toggle" onclick="toggleLogin()">로그인</button>
         </div>
 
@@ -428,14 +428,14 @@
         </div>
 
         <div id="notice-closed-box" class="closed-notice-card">
-            🚫 현재 출타종합 입력 기간이 아닙니다.
+            🚫 현재 출타종합 기간이 아닙니다.
         </div>
     </div>
 
     <div id="system-main-contents">
         <div class="status-board-area" id="section-board">
             <div class="board-header-wrapper">
-                <div class="board-main-title" id="board-main-title">📊 중대 출타 현황판</div>
+                <div class="board-main-title" id="board-main-title">📊 출타 현황판</div>
                 <div class="mini-total-box" id="top-total-setting-box" onclick="event.stopPropagation();">
                     <label>⚙️ 총원:</label>
                     <input type="number" id="in-total-setup" inputmode="numeric" placeholder="총원" onchange="updateTotalCount()">
@@ -456,7 +456,7 @@
 
             <div class="dashboard">
                 <div class="card total-card">
-                    <div class="title">부대 총원</div>
+                    <div class="title">총원</div>
                     <div class="value" id="count-total" style="color: var(--primary);">0명</div>
                 </div>
                 <div class="card away-card">
@@ -482,7 +482,7 @@
 
             <div class="admin-list-only" id="admin-secret-list-area">
                 <div class="admin-toggle-banner" onclick="toggleCollapseSection('calendar-collapse-box', event)">
-                    <span style="color: var(--primary);">📅 중대 출타 및 종교 종합 달력 <span class="arrow-icon" id="arrow-calendar">▼</span></span>
+                    <span style="color: var(--primary);">📅 출타 및 종교 종합 달력 <span class="arrow-icon" id="arrow-calendar">▼</span></span>
                 </div>
                 <div class="collapsible-content" id="calendar-collapse-box">
                     <div class="calendar-container">
@@ -496,7 +496,7 @@
                 </div>
 
                 <div class="admin-toggle-banner" onclick="toggleCollapseSection('away-collapse-box', event)">
-                    <span style="color: var(--primary);">📋 중대 출타 신청 현황 명부 <span class="arrow-icon" id="arrow-away">▼</span></span>
+                    <span style="color: var(--primary);">📋 출타 신청 현황 명부 <span class="arrow-icon" id="arrow-away">▼</span></span>
                     <div class="banner-right-controls">
                         <button class="btn-reset-list" onclick="event.stopPropagation(); resetMilData();">출타 초기화</button>
                     </div>
@@ -1189,7 +1189,7 @@
     function openLoginPopupTemplate() {
         var modalBody = document.getElementById("modal-container-body");
         modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
-                              '<div class="modal-title">🔒 체계 관리자 인증</div>' +
+                              '<div class="modal-title">🔒 관리자 인증</div>' +
                               '<div style="display:flex; flex-direction:column; gap:10px;">' +
                                   '<input type="text" id="login-id" placeholder="관리자 계정 ID">' +
                                   '<input type="password" id="login-pw" placeholder="비밀번호 입력">' +
@@ -1339,7 +1339,7 @@
     }
 
     function delGroupedAwayData(keysArray) {
-        if(confirm("해당 대원의 출타 신청 기록 전체를 명부에서 삭제하시겠습니까?")) {
+        if(confirm("해당 인원의 출타 신청 기록 전체를 명부에서 삭제하시겠습니까?")) {
             keysArray.forEach(function(key) { db.ref("mil_web_data/" + key).remove(); });
         }
     }
