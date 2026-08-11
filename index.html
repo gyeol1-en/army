@@ -127,9 +127,10 @@
             padding: 16px; backdrop-filter: blur(8px);
         }
         .modal-content {
-            background: white; padding: 28px 16px 20px 16px; border-radius: 20px; width: 100%; max-width: 340px;
+            background: white; padding: 28px 16px 20px 16px; border-radius: 20px; width: 100%; max-width: 360px;
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15); position: relative;
             animation: modalUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-height: 85vh; display: flex; flex-direction: column;
         }
         @keyframes modalUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 14px; text-align: center; color: var(--primary); }
@@ -146,11 +147,11 @@
         }
         .details-item-row {
             display: flex; align-items: center; justify-content: space-between; background: #f8fafc;
-            padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;
+            padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; gap: 8px;
         }
-        .details-item-user { font-size: 0.9rem; font-weight: 700; color: var(--primary); }
+        .details-item-user { font-size: 0.9rem; font-weight: 700; color: var(--primary); flex-grow: 1; }
         .details-item-user .detail-rank { font-size: 0.7rem; color: var(--text-muted); background: #e2e8f0; padding: 2px 5px; border-radius: 4px; margin-left: 5px; font-weight: 600; }
-        .details-item-badge { font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+        .details-item-badge { font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
 
         .status-board-area { margin-bottom: 12px; }
         .board-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -165,10 +166,19 @@
             background: var(--card-bg); padding: 12px 8px; border-radius: var(--radius-main);
             box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.02), 0 8px 12px -3px rgba(15, 23, 42, 0.03); 
             text-align: center; border: 1px solid var(--border-color);
+            position: relative;
         }
-        .card .title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; }
-        .card .value { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; }
+        .card .title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; justify-content: center; gap: 6px; height: 18px; }
+        .card .value { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; height: 26px; display: flex; align-items: center; justify-content: center; }
         
+        .card-toggle-arrow {
+            background: #f1f5f9; border: none; border-radius: 50%; width: 20px; height: 20px;
+            font-size: 0.65rem; color: var(--text-muted); cursor: pointer; display: inline-flex;
+            align-items: center; justify-content: center; transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .card-toggle-arrow:active { transform: scale(0.9); }
+
         .full-card { 
             grid-column: span 2; padding: 10px 14px;
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -271,9 +281,9 @@
         .banner-right-controls { display: flex; align-items: center; gap: 6px; }
 
         .btn-reset-list {
-            background: #fff1f2; color: var(--danger); font-size: 0.68rem; font-weight: 700;
-            height: 26px; width: 68px; padding: 0 4px; border-radius: 14px; border: 1px solid #ffe4e6; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            background: #fff1f2; color: var(--danger); font-size: 0.72rem; font-weight: 700;
+            height: 28px; width: 78px; padding: 0 6px; border-radius: 8px; border: 1px solid #ffe4e6; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
             transition: transform 0.1s ease, opacity 0.1s ease;
         }
         .btn-reset-list:active { transform: scale(0.92); opacity: 0.8; }
@@ -336,8 +346,39 @@
             box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.02);
             border: 1px solid var(--border-color);
         }
-        .form-main-title { font-size: 0.9rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .form-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 4px; }
+        .form-main-title { font-size: 0.86rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 4px; margin: 0; white-space: nowrap; flex-shrink: 0; letter-spacing: -0.03em; }
         
+        .btn-form-edit {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+            border: 1px solid #cbd5e1; 
+            color: #475569;
+            font-size: 0.72rem; 
+            font-weight: 700; 
+            height: 26px; 
+            width: 52px;
+            padding: 0; 
+            border-radius: 20px;
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            white-space: nowrap; 
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-form-edit:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: #f8fafc;
+            box-shadow: 0 2px 5px rgba(79, 70, 229, 0.12);
+        }
+        .btn-form-edit:active { 
+            transform: scale(0.93); 
+            background-color: #e0e7ff; 
+        }
+
         .input-group { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
         .date-group { display: flex; align-items: center; gap: 4px; width: 100%; background: var(--input-bg); border: 1px solid transparent; border-radius: 8px; padding: 2px 8px; height: 42px; min-height: 42px; }
         .date-group span { color: #94a3b8; font-size: 0.78rem; font-weight: bold; }
@@ -403,6 +444,30 @@
         }
         .btn-del:active { transform: scale(0.9); background: #ffe4e6; color: var(--danger); }
         
+        .btn-delete-small {
+            padding: 0 12px;
+            font-size: 0.72rem;
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            height: 26px;
+            width: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(244, 63, 94, 0.25);
+            transition: transform 0.1s ease, opacity 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-delete-small:active { 
+            transform: scale(0.92); 
+            opacity: 0.85; 
+            box-shadow: 0 1px 3px rgba(244, 63, 94, 0.15);
+        }
+        
         .divider { border-top: 1px solid var(--border-color); margin: 10px 0; display: none; }
         
         @keyframes fadeIn { 
@@ -460,8 +525,12 @@
                     <div class="value" id="count-total" style="color: var(--primary);">0명</div>
                 </div>
                 <div class="card away-card">
-                    <div class="title">출타신청자</div>
-                    <div class="value" id="count-away" style="color: var(--danger);">0명</div>
+                    <div class="title">
+                        <span>출타신청자</span>
+                    </div>
+                    <div class="value" style="display: flex; align-items: center; justify-content: center;">
+                        <span id="count-away" style="color: var(--danger);">0명</span>
+                    </div>
                 </div>
                 <div class="card full-card">
                     <div style="text-align: center; width: 100%; display: flex; justify-content: center; gap: 24px; align-items: center;">
@@ -480,21 +549,25 @@
                 </div>
             </div>
 
-            <div class="admin-list-only" id="admin-secret-list-area">
-                <div class="admin-toggle-banner" onclick="toggleCollapseSection('calendar-collapse-box', event)">
-                    <span style="color: var(--primary);">📅 출타 및 종교 종합 달력 <span class="arrow-icon" id="arrow-calendar">▼</span></span>
-                </div>
-                <div class="collapsible-content" id="calendar-collapse-box">
-                    <div class="calendar-container">
-                        <div class="calendar-header">
-                            <button class="calendar-nav-btn" onclick="moveCalendarMonth(-1)">◀</button>
-                            <div class="calendar-title" id="calendar-month-title">2026년 06월</div>
-                            <button class="calendar-nav-btn" onclick="moveCalendarMonth(1)">▶</button>
-                        </div>
-                        <div class="calendar-grid" id="calendar-grid-box"></div>
+            <div style="margin-top: 6px; margin-bottom: 8px;">
+                <button type="button" onclick="toggleCollapseSection('calendar-collapse-box', event)" style="width: 100%; background: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-sub); height: 42px; padding: 0 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.85rem; font-weight: 800; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <span>📅 출타 및 종교 종합 달력</span>
+                    <span class="arrow-icon" id="arrow-calendar" style="font-size: 0.75rem; color: #94a3b8;">▼</span>
+                </button>
+            </div>
+            
+            <div class="collapsible-content" id="calendar-collapse-box">
+                <div class="calendar-container" style="margin-bottom: 8px;">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="moveCalendarMonth(-1)">◀</button>
+                        <div class="calendar-title" id="calendar-month-title">2026년 08월</div>
+                        <button class="calendar-nav-btn" onclick="moveCalendarMonth(1)">▶</button>
                     </div>
+                    <div class="calendar-grid" id="calendar-grid-box"></div>
                 </div>
+            </div>
 
+            <div class="admin-list-only" id="admin-secret-list-area">
                 <div class="admin-toggle-banner" onclick="toggleCollapseSection('away-collapse-box', event)">
                     <span style="color: var(--primary);">📋 출타 신청 현황 명부 <span class="arrow-icon" id="arrow-away">▼</span></span>
                     <div class="banner-right-controls">
@@ -520,7 +593,10 @@
         </div>
 
         <div class="form-section" id="section-form-away">
-            <div class="form-main-title" id="form-title">✏️ 출타신청 등록</div>
+            <div class="form-header-row">
+                <div class="form-main-title" id="form-title">✏️ 출타신청 등록</div>
+                <button class="btn-form-edit" onclick="openMyAwayRecordsModal()">수정</button>
+            </div>
             <div class="input-group">
                 <select id="in-rank" onchange="handleRankChange('away')">
                     <option value="" disabled selected>계급 선택</option>
@@ -567,7 +643,10 @@
         </div>
 
         <div class="form-section" id="section-form-church">
-            <div class="form-main-title">⛪ 일요일 종교참석 등록</div>
+            <div class="form-header-row">
+                <div class="form-main-title">⛪ 일요일 종교참석</div>
+                <button class="btn-form-edit" onclick="openMyChurchRecordsModal()">수정</button>
+            </div>
             <div class="input-group">
                 <select id="church-rank" onchange="handleRankChange('church')">
                     <option value="" disabled selected>계급 선택</option>
@@ -642,12 +721,20 @@
     var currentCalDate = new Date();
 
     var krHolidays = {
-        "01-01": "신정", "03-01": "삼일절", "05-05": "어린이날", "06-06": "현충일",
-        "08-15": "광복절", "10-03": "개천절", "10-09": "한글날", "12-25": "성탄절",
-        "02-16": "설날 연휴", "02-17": "설날", "02-18": "설날 연휴", "02-19": "대체공휴일",
-        "05-24": "부처님오신날", "05-25": "대체공휴일", "09-24": "추석 연휴", "09-25": "추석",
-        "09-26": "추석 연휴", "09-28": "대체공휴일"
+        "08-15": "광복절", "08-17": "광복절 대체공휴일",
+        "09-24": "추석 연휴", "09-25": "추석", "09-26": "추석 연휴",
+        "10-03": "개천절", "10-05": "개천절 대체공휴일", "10-09": "한글날", "12-25": "성탄절",
+        "01-01": "신정"
     };
+
+    function getMyUserId() {
+        let myId = localStorage.getItem("mil_my_unique_id");
+        if (!myId) {
+            myId = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now();
+            localStorage.setItem("mil_my_unique_id", myId);
+        }
+        return myId;
+    }
 
     function handleRankChange(type) {
         if(type === 'away') {
@@ -776,22 +863,6 @@
         }
     }
 
-    function getSortableDate(periodStr) {
-        try {
-            var matches = periodStr.match(/(\d{2})\.(\d{2})/g);
-            if (!matches || matches.length === 0) return 99999999;
-            var parts = matches[0].split(".");
-            return parseInt(parts[0] + parts[1]);
-        } catch(e) {
-            return 99999999;
-        }
-    }
-
-    function moveCalendarMonth(dir) {
-        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
-        buildComprehensiveCalendar();
-    }
-
     function showDateDetailsPopup(year, month, dayNum, holidayName) {
         var monthStr = ((month + 1) < 10 ? "0" + (month + 1) : (month + 1));
         var dayStr = (dayNum < 10 ? "0" + dayNum : dayNum);
@@ -810,7 +881,12 @@
             else if (m.status.includes("외박")) colorClass = "away-stayout";
             else if (m.status.includes("외출")) colorClass = "away-goout";
 
-            if (m.status.includes("외출") || m.status.includes("면회")) {
+            if (m.period.includes(",")) {
+                var dates = m.period.split(",").map(function(s) { return s.trim(); });
+                dates.forEach(function(dStr) {
+                    if (dStr.includes(targetMD)) isMatched = true;
+                });
+            } else if (m.status.includes("외출") || m.status.includes("면회")) {
                 if (m.period.includes(targetMD)) isMatched = true;
             } else {
                 var parts = m.period.split(" ~ ");
@@ -865,9 +941,10 @@
         var month = currentCalDate.getMonth();
         
         var monthTitle = document.getElementById("calendar-month-title");
-        monthTitle.innerText = year + "년 " + ((month + 1) < 10 ? "0" + (month + 1) : (month + 1)) + "월";
+        if(monthTitle) monthTitle.innerText = year + "년 " + ((month + 1) < 10 ? "0" + (month + 1) : (month + 1)) + "월";
 
         var gridBox = document.getElementById("calendar-grid-box");
+        if(!gridBox) return;
         gridBox.innerHTML = "";
 
         var weeks = ["일", "월", "화", "수", "목", "금", "토"];
@@ -898,14 +975,12 @@
             if (currentDayOfWeek === 6) cellClass += " sat";
 
             var badgeHtml = "";
-
             if(isHoliday) {
                 badgeHtml += '<div class="cal-badge holiday-badge">🚩 ' + hName + '</div>';
             }
 
             mData.forEach(function(m) {
                 if (!m.period || m.period === "-") return;
-
                 var colorClass = "away-etc";
                 var shortStatus = "출타";
 
@@ -914,8 +989,15 @@
                 else if (m.status.includes("외박")) { colorClass = "away-stayout"; shortStatus = "외박"; } 
                 else if (m.status.includes("외출")) { colorClass = "away-goout"; shortStatus = "외출"; } 
 
-                if (m.status.includes("외출") || m.status.includes("면회")) {
-                    var formattedTarget = currentMonthStr + "." + currentDayStr;
+                var formattedTarget = currentMonthStr + "." + currentDayStr;
+                if (m.period.includes(",")) {
+                    var dates = m.period.split(",").map(function(s) { return s.trim(); });
+                    dates.forEach(function(dStr) {
+                        if (dStr.includes(formattedTarget)) {
+                            badgeHtml += '<div class="cal-badge ' + colorClass + '" title="[' + m.rank + '] ' + m.name + ' (' + m.status + ')">' + m.name + '(' + shortStatus + ')</div>';
+                        }
+                    });
+                } else if (m.status.includes("외출") || m.status.includes("면회")) {
                     if (m.period.includes(formattedTarget)) {
                         badgeHtml += '<div class="cal-badge ' + colorClass + '" title="[' + m.rank + '] ' + m.name + ' (' + m.status + ')">' + m.name + '(' + shortStatus + ')</div>';
                     }
@@ -962,6 +1044,131 @@
             for (var n = 1; n <= nextMonthDays; n++) {
                 gridBox.innerHTML += '<div class="calendar-cell other-month"><div class="day-number">' + n + '</div></div>';
             }
+        }
+    }
+
+    function getSortableDate(periodStr) {
+        try {
+            var matches = periodStr.match(/(\d{2})\.(\d{2})/g);
+            if (!matches || matches.length === 0) return 99999999;
+            var parts = matches[0].split(".");
+            return parseInt(parts[0] + parts[1]);
+        } catch(e) {
+            return 99999999;
+        }
+    }
+
+    function moveCalendarMonth(dir) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        buildComprehensiveCalendar();
+    }
+
+    function openMyAwayRecordsModal() {
+        var myId = getMyUserId();
+        var myRecords = [];
+        
+        mData.forEach(function(m) {
+            if (isAdmin || m.ownerId === myId) {
+                myRecords.push(m);
+            }
+        });
+
+        var modalBody = document.getElementById("modal-container-body");
+        var listHtml = "";
+
+        if (myRecords.length === 0) {
+            listHtml = '<div style="text-align:center; padding:24px 10px; color:#94a3b8; font-size:0.8rem; font-weight:600;">이 기기에서 등록한 출타 신청 내역이 없습니다.</div>';
+        } else {
+            myRecords.forEach(function(rec) {
+                if (rec.period && rec.period.includes(",")) {
+                    var subDates = rec.period.split(",").map(function(s) { return s.trim(); });
+                    subDates.forEach(function(singleDate, sIdx) {
+                        listHtml += '<div class="details-item-row" style="margin-bottom:6px;">' +
+                                        '<div class="details-item-user">' + rec.name + '<span class="detail-rank">' + rec.rank + '</span><div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; margin-top:2px;">' + rec.status + ' (' + singleDate + ')</div></div>' +
+                                        '<button class="btn-delete-small" onclick="deleteIndividualAwayRecord(\'' + rec.id + '\', \'' + rec.period + '\', ' + sIdx + ')">삭제</button>' +
+                                    '</div>';
+                    });
+                } else {
+                    listHtml += '<div class="details-item-row" style="margin-bottom:6px;">' +
+                                    '<div class="details-item-user">' + rec.name + '<span class="detail-rank">' + rec.rank + '</span><div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; margin-top:2px;">' + rec.status + ' (' + rec.period + ')</div></div>' +
+                                    '<button class="btn-delete-small" onclick="deleteAwayRecord(\'' + rec.id + '\')">삭제</button>' +
+                                '</div>';
+                }
+            });
+        }
+
+        modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
+                              '<div class="modal-title">✏️ 내 출타 신청 내역 관리</div>' +
+                              '<div style="font-size:0.73rem; color:#64748b; margin-bottom:8px; text-align:center;">본인이 이 기기에서 등록한 내역만 삭제할 수 있습니다.</div>' +
+                              '<div class="details-list-container">' + listHtml + '</div>';
+        document.getElementById("login-modal").style.display = "flex";
+    }
+
+    function deleteAwayRecord(recordId) {
+        if(confirm("해당 출타 신청 내역을 삭제하시겠습니까?")) {
+            db.ref("mil_web_data/" + recordId).remove().then(function() {
+                alert("삭제되었습니다.");
+                openMyAwayRecordsModal();
+            });
+        }
+    }
+
+    function deleteIndividualAwayRecord(recordId, fullPeriodStr, targetIdx) {
+        if(confirm("해당 날짜의 출타 신청 내역을 삭제하시겠습니까?")) {
+            var dates = fullPeriodStr.split(",").map(function(s) { return s.trim(); });
+            dates.splice(targetIdx, 1);
+            if(dates.length === 0) {
+                db.ref("mil_web_data/" + recordId).remove().then(function() {
+                    alert("삭제되었습니다.");
+                    openMyAwayRecordsModal();
+                });
+            } else {
+                var newPeriodStr = dates.join(", ");
+                db.ref("mil_web_data/" + recordId).update({ period: newPeriodStr }).then(function() {
+                    alert("삭제되었습니다.");
+                    openMyAwayRecordsModal();
+                });
+            }
+        }
+    }
+
+    function openMyChurchRecordsModal() {
+        var myId = getMyUserId();
+        var myRecords = [];
+        
+        cData.forEach(function(c) {
+            if (isAdmin || c.ownerId === myId) {
+                myRecords.push(c);
+            }
+        });
+
+        var modalBody = document.getElementById("modal-container-body");
+        var listHtml = "";
+
+        if (myRecords.length === 0) {
+            listHtml = '<div style="text-align:center; padding:24px 10px; color:#94a3b8; font-size:0.8rem; font-weight:600;">이 기기에서 등록한 종교 신청 내역이 없습니다.</div>';
+        } else {
+            myRecords.forEach(function(rec) {
+                listHtml += '<div class="details-item-row" style="margin-bottom:6px;">' +
+                                '<div class="details-item-user">' + rec.name + '<span class="detail-rank">' + rec.rank + '</span><div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; margin-top:2px;">📅 ' + rec.date + '</div></div>' +
+                                '<button class="btn-delete-small" onclick="deleteChurchRecord(\'' + rec.id + '\')">삭제</button>' +
+                            '</div>';
+            });
+        }
+
+        modalBody.innerHTML = '<span class="modal-close" onclick="closeModal()">×</span>' +
+                              '<div class="modal-title">⛪ 내 종교 신청 내역 관리</div>' +
+                              '<div style="font-size:0.73rem; color:#64748b; margin-bottom:8px; text-align:center;">본인이 이 기기에서 등록한 내역만 삭제할 수 있습니다.</div>' +
+                              '<div class="details-list-container">' + listHtml + '</div>';
+        document.getElementById("login-modal").style.display = "flex";
+    }
+
+    function deleteChurchRecord(recordId) {
+        if(confirm("해당 종교 신청 내역을 삭제하시겠습니까?")) {
+            db.ref("mil_church_data/" + recordId).remove().then(function() {
+                alert("삭제되었습니다.");
+                openMyChurchRecordsModal();
+            });
         }
     }
 
@@ -1291,8 +1498,9 @@
             period = sArr[1] + '.' + sArr[2] + ' ~ ' + eArr[1] + '.' + eArr[2];
         }
 
+        var myUniqueId = getMyUserId();
         var newRecordRef = mDataRef.push();
-        newRecordRef.set({ rank: rank, name: name, status: status, period: period })
+        newRecordRef.set({ rank: rank, name: name, status: status, period: period, ownerId: myUniqueId })
         .then(function() {
             selectedOutDates = []; renderOutDateBadges();
             document.getElementById("in-rank").value = "";
@@ -1320,10 +1528,11 @@
         if(!name) { alert("이름을 입력해 주세요!"); return; }
         if(selectedChurchDates.length === 0) { alert("⛪ 신청할 날짜를 골라주세요!"); return; }
 
+        var myUniqueId = getMyUserId();
         var completeCount = 0;
         selectedChurchDates.forEach(function(dateStr) {
             var newChurchRecordRef = cDataRef.push();
-            newChurchRecordRef.set({ rank: rank, name: name, choice: choice, date: dateStr })
+            newChurchRecordRef.set({ rank: rank, name: name, choice: choice, date: dateStr, ownerId: myUniqueId })
             .then(function() {
                 completeCount++;
                 if(completeCount === selectedChurchDates.length) {
@@ -1331,7 +1540,7 @@
                     document.getElementById("church-rank").value = "";
                     document.getElementById("church-name").value = "";
                     document.getElementById("church-date").value = "";
-                    handleRankChange('church');
+                    handleRankCommand('church');
                     alert("⛪ 종교신청이 완료되었습니다.");
                 }
             });
